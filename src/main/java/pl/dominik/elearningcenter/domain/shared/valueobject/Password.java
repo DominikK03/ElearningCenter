@@ -19,7 +19,7 @@ public final class Password {
         }
         this.value = value;
     }
-    public static Password formRaw(String rawPassword){
+    public static Password fromRaw(String rawPassword){
         if (rawPassword.length() < MIN_LENGHT){
             throw new IllegalArgumentException("Password must be at least " + MIN_LENGHT + "characters");
         }

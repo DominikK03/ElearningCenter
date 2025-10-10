@@ -6,7 +6,6 @@ import pl.dominik.elearningcenter.domain.shared.valueobject.Email;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Password;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Username;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 

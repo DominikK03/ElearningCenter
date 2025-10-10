@@ -1,8 +1,17 @@
 package pl.dominik.elearningcenter.domain.shared;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+
 import java.util.Objects;
 
+@MappedSuperclass
 public abstract class AggregateRoot<ID> {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected ID id;
 
     protected AggregateRoot() {}

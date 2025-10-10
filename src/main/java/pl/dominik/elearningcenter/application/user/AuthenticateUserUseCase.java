@@ -8,7 +8,6 @@ import pl.dominik.elearningcenter.application.user.dto.AuthenticateUserCommand;
 import pl.dominik.elearningcenter.application.user.dto.UserDTO;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Email;
-import pl.dominik.elearningcenter.domain.shared.valueobject.Password;
 import pl.dominik.elearningcenter.domain.user.User;
 import pl.dominik.elearningcenter.domain.user.UserRepository;
 
