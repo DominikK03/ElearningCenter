@@ -15,8 +15,7 @@ public class GetCourseDetailsUseCase {
     }
 
     public CourseDTO execute(Long courseId){
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new CourseNotFoundException("Course not found with id: " + courseId));
+        Course course = courseRepository.findByIdOrThrow(courseId);
         return CourseDTO.from(course);
     }
 }

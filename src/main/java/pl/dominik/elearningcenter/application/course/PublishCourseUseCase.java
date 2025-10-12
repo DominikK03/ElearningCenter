@@ -18,8 +18,7 @@ public class PublishCourseUseCase {
     }
 
     public CourseDTO execute(Long courseId){
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new CourseNotFoundException("Course not found with id: " + courseId));
+        Course course = courseRepository.findByIdOrThrow(courseId);
         course.publish();
         Course publishedCourse = courseRepository.save(course);
         return CourseDTO.from(publishedCourse);

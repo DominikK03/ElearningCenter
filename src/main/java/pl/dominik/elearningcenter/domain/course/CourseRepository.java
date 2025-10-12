@@ -1,5 +1,7 @@
 package pl.dominik.elearningcenter.domain.course;
 
+import pl.dominik.elearningcenter.domain.course.exception.CourseNotFoundException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -20,4 +22,9 @@ public interface CourseRepository {
     void delete(Course course);
 
     boolean existsById(Long id);
+
+    default Course findByIdOrThrow(Long courseId){
+        return findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Course not found: " + courseId));
+    }
 }

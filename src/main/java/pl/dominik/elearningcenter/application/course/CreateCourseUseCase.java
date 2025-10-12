@@ -3,7 +3,7 @@ package pl.dominik.elearningcenter.application.course;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
-import pl.dominik.elearningcenter.application.course.dto.CreateCourseCommand;
+import pl.dominik.elearningcenter.application.course.command.CreateCourseCommand;
 import pl.dominik.elearningcenter.domain.course.Course;
 import pl.dominik.elearningcenter.domain.course.CourseRepository;
 import pl.dominik.elearningcenter.domain.course.valueobject.CourseDescription;

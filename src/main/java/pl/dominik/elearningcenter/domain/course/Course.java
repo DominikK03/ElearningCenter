@@ -73,6 +73,31 @@ public class Course extends AggregateRoot<Long> {
         return new Course(title, description, price, category, level, instructorId);
     }
 
+    public void updateTitle(CourseTitle newTitle){
+        if (newTitle == null){
+            throw new IllegalArgumentException("Title cannot be null");
+        }
+        this.title = newTitle;
+    }
+    public void updateDescription(CourseDescription newDescription){
+        if (newDescription == null){
+            throw new IllegalArgumentException("Description cannot be null");
+        }
+        this.description = newDescription;
+    }
+    public void updateCategory(String newCategory){
+        if (newCategory == null || newCategory.isBlank()){
+            throw new IllegalArgumentException("Category cannot be empty");
+        }
+        this.category = newCategory;
+    }
+    public void updateLevel(CourseLevel newLevel) {
+        if (newLevel == null) {
+            throw new IllegalArgumentException("Level cannot be null");
+        }
+        this.level = newLevel;
+    }
+
     public void publish(){
         if(!canBePublished()){
             throw new CourseNotPublishedException("Course must have at least one section with lessons to be published");
@@ -88,13 +113,15 @@ public class Course extends AggregateRoot<Long> {
         sections.add(section);
         section.setCourse(this);
     }
-
-    public void removeSection(Long sectionId){
-        Section section = sections.stream()
+    public Section findSection(Long sectionId){
+        return sections.stream()
                 .filter(s -> s.getId().equals(sectionId))
                 .findFirst()
-                .orElseThrow(() -> new SectionNotFoundException("Section not found " + sectionId));
+                .orElseThrow(() -> new SectionNotFoundException("Section not found: " + sectionId));
+    }
 
+    public void removeSection(Long sectionId){
+        Section section = findSection(sectionId);
         sections.remove(section);
     }
 

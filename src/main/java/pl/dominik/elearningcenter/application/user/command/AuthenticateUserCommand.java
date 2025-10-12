@@ -1,4 +1,4 @@
-package pl.dominik.elearningcenter.application.user.dto;
+package pl.dominik.elearningcenter.application.user.command;
 
 public record AuthenticateUserCommand(
         String email,

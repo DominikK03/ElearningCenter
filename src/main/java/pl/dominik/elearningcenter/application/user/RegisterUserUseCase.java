@@ -1,9 +1,8 @@
 package pl.dominik.elearningcenter.application.user;
 
 import jakarta.transaction.Transactional;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pl.dominik.elearningcenter.application.user.dto.RegisterUserCommand;
+import pl.dominik.elearningcenter.application.user.command.RegisterUserCommand;
 import pl.dominik.elearningcenter.application.user.dto.UserDTO;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Email;
@@ -17,11 +16,9 @@ import pl.dominik.elearningcenter.domain.user.UserRepository;
 @Transactional
 public class RegisterUserUseCase {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public RegisterUserUseCase(UserRepository userRepository, PasswordEncoder passwordEncoder){
+    public RegisterUserUseCase(UserRepository userRepository){
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     public UserDTO execute(RegisterUserCommand command){
@@ -34,8 +31,7 @@ public class RegisterUserUseCase {
         if (userRepository.existsByUsername(username)){
             throw new DomainException("Username already exists " + command.username());
         }
-        String hashedPassword = passwordEncoder.encode(command.password());
-        Password password = Password.fromHashed(hashedPassword);
+        Password password = Password.fromRaw(command.password());
 
         User user = User.register(username, email, password, command.role());
 

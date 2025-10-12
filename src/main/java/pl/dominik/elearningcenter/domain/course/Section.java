@@ -1,6 +1,7 @@
 package pl.dominik.elearningcenter.domain.course;
 
 import jakarta.persistence.*;
+import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,9 +40,29 @@ public class Section {
         this.course = course;
     }
 
+    public void updateTitle(String newTitle){
+        if(newTitle == null || newTitle.isBlank()){
+            throw new IllegalArgumentException("Title cannot be null or blank");
+        }
+        this.title = newTitle;
+    }
+    public void updateOrderIndex(Integer newOrderIndex){
+        if (newOrderIndex == null || newOrderIndex < 0){
+            throw new IllegalArgumentException("Order index must be >= 0");
+        }
+        this.orderIndex = newOrderIndex;
+    }
+
     public void addLesson(Lesson lesson){
         lessons.add(lesson);
         lesson.setSection(this);
+    }
+
+    public Lesson findLesson(Long lessonId){
+        return lessons.stream()
+                .filter(l -> l.getId().equals(lessonId))
+                .findFirst()
+                .orElseThrow(() -> new DomainException("Lesson not found: " + lessonId));
     }
 
     public void removeLesson(Long lessonId){

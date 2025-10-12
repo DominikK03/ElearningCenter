@@ -2,6 +2,7 @@ package pl.dominik.elearningcenter.domain.user;
 
 import jakarta.persistence.*;
 import pl.dominik.elearningcenter.domain.shared.AggregateRoot;
+import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Email;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Password;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Username;
@@ -60,11 +61,25 @@ public class User extends AggregateRoot<Long> {
         this.enabled = false;
     }
 
-    public void changePassword(Password newPassword) {
-        if (newPassword == null) {
-            throw new IllegalArgumentException("Password cannot be null");
+    public void changePassword(String oldPasswordRaw, String newPasswordRaw) {
+        if(!this.password.matches(oldPasswordRaw)){
+            throw new DomainException("Invalid old password");
         }
-        this.password = newPassword;
+        this.password = Password.fromRaw(newPasswordRaw);
+    }
+
+    public void updateEmail(Email newEmail){
+        if (newEmail == null){
+            throw new IllegalArgumentException("Email cannot be null");
+        }
+        this.email = newEmail;
+    }
+
+    public void updateUsername(Username newUsername){
+        if (newUsername == null){
+            throw new IllegalArgumentException("Username cannot be null");
+        }
+        this.username = newUsername;
     }
     public boolean isEnabled(){
         return enabled;

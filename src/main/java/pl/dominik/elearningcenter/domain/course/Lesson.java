@@ -96,6 +96,22 @@ public class Lesson {
         return Collections.unmodifiableList(materials);
     }
 
+
+    public void updateTitle(String newTitle){
+        if (newTitle == null || newTitle.isBlank()){
+            throw new IllegalArgumentException("Title cannot be empty");
+        }
+        this.title = newTitle;
+    }
+    public void updateContent(String newContent){
+        this.content = newContent;
+    }
+    public void updateOrderIndex(Integer newOrderIndex){
+        if (newOrderIndex == null || newOrderIndex < 0){
+            throw new IllegalArgumentException("Order index must be >= 0");
+        }
+        this.orderIndex = newOrderIndex;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

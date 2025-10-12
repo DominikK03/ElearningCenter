@@ -1,9 +1,8 @@
-package pl.dominik.elearningcenter.application.course.dto;
+package pl.dominik.elearningcenter.application.course.command;
 
 import pl.dominik.elearningcenter.domain.course.CourseLevel;
 
 import java.math.BigDecimal;
-import java.util.Currency;
 
 public record CreateCourseCommand(
         String title,

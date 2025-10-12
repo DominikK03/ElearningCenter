@@ -1,4 +1,4 @@
-package pl.dominik.elearningcenter.application.course.dto;
+package pl.dominik.elearningcenter.application.course.command;
 
 public record AddSectionCommand(
         Long courseId,

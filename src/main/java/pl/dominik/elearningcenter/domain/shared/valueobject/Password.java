@@ -1,12 +1,14 @@
 package pl.dominik.elearningcenter.domain.shared.valueobject;
 
 import jakarta.persistence.Embeddable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Objects;
 
 @Embeddable
 public final class Password {
-    private static final int MIN_LENGHT = 6;
+    private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private static final int MIN_LENGTH = 6;
 
     private String value;
 
@@ -20,13 +22,18 @@ public final class Password {
         this.value = value;
     }
     public static Password fromRaw(String rawPassword){
-        if (rawPassword.length() < MIN_LENGHT){
-            throw new IllegalArgumentException("Password must be at least " + MIN_LENGHT + "characters");
+        if (rawPassword == null || rawPassword.length() < MIN_LENGTH){
+            throw new IllegalArgumentException("Password must be at least " + MIN_LENGTH + "characters");
         }
-        return new Password(rawPassword);
+        String hashed = encoder.encode(rawPassword);
+        return new Password(hashed);
     }
     public static Password fromHashed(String hashedPassword){
         return new Password(hashedPassword);
+    }
+
+    public boolean matches(String rawPassword){
+        return encoder.matches(rawPassword, this.value);
     }
 
     public String getValue(){
