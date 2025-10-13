@@ -1,5 +1,7 @@
 package pl.dominik.elearningcenter.domain.course;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import pl.dominik.elearningcenter.domain.course.exception.CourseNotFoundException;
 
 import java.util.List;
@@ -12,6 +14,7 @@ public interface CourseRepository {
     Optional<Course> findById(Long id);
 
     List<Course> findAll();
+    Page<Course> findAll(Pageable pageable);
 
     List<Course> findByInstructorId(Long instructorId);
 

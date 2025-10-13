@@ -3,7 +3,6 @@ package pl.dominik.elearningcenter.application.user.dto;
 import pl.dominik.elearningcenter.domain.user.User;
 import pl.dominik.elearningcenter.domain.user.UserRole;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record UserDTO(

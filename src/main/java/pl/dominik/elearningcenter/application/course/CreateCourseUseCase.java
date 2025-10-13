@@ -11,7 +11,6 @@ import pl.dominik.elearningcenter.domain.course.valueobject.CourseTitle;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Money;
 
 @Service
-@Transactional
 public class CreateCourseUseCase {
     private final CourseRepository courseRepository;
 
@@ -19,13 +18,14 @@ public class CreateCourseUseCase {
         this.courseRepository = courseRepository;
     }
 
-    public CourseDTO execute(CreateCourseCommand command){
+    @Transactional
+    public Long execute(CreateCourseCommand command){
         CourseTitle courseTitle = new CourseTitle(command.title());
         CourseDescription courseDescription = new CourseDescription(command.description());
         Money money = Money.of(command.price(), command.currency());
 
         Course course = Course.create(courseTitle, courseDescription, money, command.category(), command.level(), command.instructorId());
-        Course savedCourse = courseRepository.save(course);
-        return CourseDTO.from(savedCourse);
+        courseRepository.save(course);
+        return course.getId();
     }
 }

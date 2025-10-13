@@ -9,9 +9,9 @@ import pl.dominik.elearningcenter.application.enrollment.UpdateProgressUseCase;
 import pl.dominik.elearningcenter.application.enrollment.dto.EnrollStudentCommand;
 import pl.dominik.elearningcenter.application.enrollment.dto.EnrollmentDTO;
 import pl.dominik.elearningcenter.application.enrollment.dto.UpdateProgressCommand;
-import pl.dominik.elearningcenter.interfaces.rest.enrollment.dto.EnrollStudentRequest;
-import pl.dominik.elearningcenter.interfaces.rest.enrollment.dto.EnrollmentResponse;
-import pl.dominik.elearningcenter.interfaces.rest.enrollment.dto.UpdateProgressRequest;
+import pl.dominik.elearningcenter.interfaces.rest.enrollment.request.EnrollStudentRequest;
+import pl.dominik.elearningcenter.interfaces.rest.enrollment.response.EnrollmentResponse;
+import pl.dominik.elearningcenter.interfaces.rest.enrollment.request.UpdateProgressRequest;
 
 import java.util.List;
 

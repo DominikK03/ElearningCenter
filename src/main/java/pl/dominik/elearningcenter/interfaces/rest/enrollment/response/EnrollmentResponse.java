@@ -1,4 +1,4 @@
-package pl.dominik.elearningcenter.interfaces.rest.enrollment.dto;
+package pl.dominik.elearningcenter.interfaces.rest.enrollment.response;
 
 import pl.dominik.elearningcenter.application.enrollment.dto.EnrollmentDTO;
 import pl.dominik.elearningcenter.domain.enrollment.EnrollmentStatus;

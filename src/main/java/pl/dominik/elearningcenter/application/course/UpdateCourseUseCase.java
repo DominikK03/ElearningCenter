@@ -3,10 +3,8 @@ package pl.dominik.elearningcenter.application.course;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dominik.elearningcenter.application.course.command.UpdateCourseCommand;
-import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
 import pl.dominik.elearningcenter.domain.course.Course;
 import pl.dominik.elearningcenter.domain.course.CourseRepository;
-import pl.dominik.elearningcenter.domain.course.exception.CourseNotFoundException;
 import pl.dominik.elearningcenter.domain.course.valueobject.CourseDescription;
 import pl.dominik.elearningcenter.domain.course.valueobject.CourseTitle;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
@@ -21,7 +19,7 @@ public class UpdateCourseUseCase {
     }
 
     @Transactional
-    public CourseDTO execute(UpdateCourseCommand command){
+    public void execute(UpdateCourseCommand command){
         Course course = courseRepository.findByIdOrThrow(command.courseId());
         if (!course.isOwnedBy(command.instructorId())){
             throw new DomainException("Only course owner can update the course");
@@ -31,7 +29,5 @@ public class UpdateCourseUseCase {
         course.updatePrice(Money.of(command.priceAmount(), command.priceCurrency()));
         course.updateCategory(command.category());
         course.updateLevel(command.level());
-
-        return CourseDTO.from(course);
     }
 }

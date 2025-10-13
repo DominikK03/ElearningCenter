@@ -12,9 +12,9 @@ import pl.dominik.elearningcenter.application.user.RegisterUserUseCase;
 import pl.dominik.elearningcenter.application.user.command.AuthenticateUserCommand;
 import pl.dominik.elearningcenter.application.user.command.RegisterUserCommand;
 import pl.dominik.elearningcenter.application.user.dto.UserDTO;
-import pl.dominik.elearningcenter.interfaces.rest.user.dto.LoginRequest;
-import pl.dominik.elearningcenter.interfaces.rest.user.dto.RegisterUserRequest;
-import pl.dominik.elearningcenter.interfaces.rest.user.dto.UserResponse;
+import pl.dominik.elearningcenter.interfaces.rest.user.request.LoginRequest;
+import pl.dominik.elearningcenter.interfaces.rest.user.request.RegisterUserRequest;
+import pl.dominik.elearningcenter.interfaces.rest.user.response.UserResponse;
 
 @RestController
 @RequestMapping("/api/users")

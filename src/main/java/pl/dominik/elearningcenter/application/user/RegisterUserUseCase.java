@@ -3,7 +3,6 @@ package pl.dominik.elearningcenter.application.user;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import pl.dominik.elearningcenter.application.user.command.RegisterUserCommand;
-import pl.dominik.elearningcenter.application.user.dto.UserDTO;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Email;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Password;
@@ -13,7 +12,6 @@ import pl.dominik.elearningcenter.domain.user.UserRepository;
 
 
 @Service
-@Transactional
 public class RegisterUserUseCase {
     private final UserRepository userRepository;
 
@@ -21,7 +19,8 @@ public class RegisterUserUseCase {
         this.userRepository = userRepository;
     }
 
-    public UserDTO execute(RegisterUserCommand command){
+    @Transactional
+    public Long execute(RegisterUserCommand command){
         Email email = new Email(command.email());
         Username username = new Username(command.username());
 
@@ -37,6 +36,6 @@ public class RegisterUserUseCase {
 
         User savedUser = userRepository.save(user);
 
-        return UserDTO.from(savedUser);
+        return savedUser.getId();
     }
 }

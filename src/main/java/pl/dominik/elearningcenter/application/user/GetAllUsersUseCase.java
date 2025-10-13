@@ -24,13 +24,13 @@ public class GetAllUsersUseCase {
         Pageable pageable = PageRequest.of(command.page(), command.size());
         Page<User> userPage = userRepository.findAll(pageable);
 
-        List<UserDTO> userDTOs = userPage.getContent()
+        List<UserDTO> users = userPage.getContent()
                 .stream()
                 .map(UserDTO::from)
                 .toList();
 
         return new PagedUsersDTO(
-                userDTOs,
+                users,
                 userPage.getNumber(),
                 userPage.getTotalPages(),
                 userPage.getTotalElements()

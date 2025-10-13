@@ -1,4 +1,4 @@
-package pl.dominik.elearningcenter.interfaces.rest.user.dto;
+package pl.dominik.elearningcenter.interfaces.rest.user.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

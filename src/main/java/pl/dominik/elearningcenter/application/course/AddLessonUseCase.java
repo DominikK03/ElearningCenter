@@ -3,26 +3,24 @@ package pl.dominik.elearningcenter.application.course;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dominik.elearningcenter.application.course.command.AddLessonCommand;
-import pl.dominik.elearningcenter.application.course.dto.LessonDTO;
 import pl.dominik.elearningcenter.domain.course.Course;
 import pl.dominik.elearningcenter.domain.course.CourseRepository;
 import pl.dominik.elearningcenter.domain.course.Lesson;
 import pl.dominik.elearningcenter.domain.course.Section;
-import pl.dominik.elearningcenter.domain.course.exception.CourseNotFoundException;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 
 @Service
 public class AddLessonUseCase {
     private final CourseRepository courseRepository;
 
-    public AddLessonUseCase(CourseRepository courseRepository){
+    public AddLessonUseCase(CourseRepository courseRepository) {
         this.courseRepository = courseRepository;
     }
 
     @Transactional
-    public LessonDTO execute(AddLessonCommand command){
+    public Long execute(AddLessonCommand command) {
         Course course = courseRepository.findByIdOrThrow(command.courseId());
-        if (!course.isOwnedBy(command.instructorId())){
+        if (!course.isOwnedBy(command.instructorId())) {
             throw new DomainException("Only course owner can add lesson to this course");
         }
 
@@ -33,6 +31,6 @@ public class AddLessonUseCase {
                 command.orderIndex()
         );
         section.addLesson(newLesson);
-        return LessonDTO.from(newLesson);
+        return newLesson.getId();
     }
 }

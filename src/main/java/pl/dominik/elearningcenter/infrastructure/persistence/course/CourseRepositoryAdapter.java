@@ -1,5 +1,7 @@
 package pl.dominik.elearningcenter.infrastructure.persistence.course;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import pl.dominik.elearningcenter.domain.course.Course;
 import pl.dominik.elearningcenter.domain.course.CourseRepository;
@@ -30,6 +32,12 @@ public class CourseRepositoryAdapter implements CourseRepository {
     public List<Course> findAll() {
         return jpaRepository.findAll();
     }
+
+    @Override
+    public Page<Course> findAll(Pageable pageable) {
+        return jpaRepository.findAll(pageable);
+    }
+
 
     @Override
     public List<Course> findByInstructorId(Long instructorId) {

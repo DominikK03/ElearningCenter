@@ -1,4 +1,4 @@
-package pl.dominik.elearningcenter.interfaces.rest.course.dto;
+package pl.dominik.elearningcenter.interfaces.rest.course.response;
 
 import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
 import pl.dominik.elearningcenter.application.course.dto.SectionDTO;

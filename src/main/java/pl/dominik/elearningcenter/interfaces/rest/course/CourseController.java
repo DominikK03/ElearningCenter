@@ -4,30 +4,56 @@ package pl.dominik.elearningcenter.interfaces.rest.course;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.dominik.elearningcenter.application.course.AddSectionUseCase;
-import pl.dominik.elearningcenter.application.course.CreateCourseUseCase;
-import pl.dominik.elearningcenter.application.course.GetCourseDetailsUseCase;
-import pl.dominik.elearningcenter.application.course.PublishCourseUseCase;
+import pl.dominik.elearningcenter.application.course.*;
 import pl.dominik.elearningcenter.application.course.command.AddSectionCommand;
 import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
 import pl.dominik.elearningcenter.application.course.command.CreateCourseCommand;
-import pl.dominik.elearningcenter.interfaces.rest.course.dto.AddSectionRequest;
-import pl.dominik.elearningcenter.interfaces.rest.course.dto.CourseResponse;
-import pl.dominik.elearningcenter.interfaces.rest.course.dto.CreateCourseRequest;
+import pl.dominik.elearningcenter.interfaces.rest.course.request.AddSectionRequest;
+import pl.dominik.elearningcenter.interfaces.rest.course.response.CourseResponse;
+import pl.dominik.elearningcenter.interfaces.rest.course.request.CreateCourseRequest;
 
 @RestController
 @RequestMapping("/api/courses")
 public class CourseController {
-    private final AddSectionUseCase addSectionUseCase;
     private final CreateCourseUseCase createCourseUseCase;
-    private final GetCourseDetailsUseCase getCourseDetailsUseCase;
+    private final UpdateCourseUseCase updateCourseUseCase;
+    private final DeleteCourseUseCase deleteCourseUseCase;
     private final PublishCourseUseCase publishCourseUseCase;
+    private final GetCourseDetailsUseCase getCourseDetailsUseCase;
+    private final GetAllCoursesUseCase getAllCoursesUseCase;
+    private final AddSectionUseCase addSectionUseCase;
+    private final UpdateSectionUseCase updateSectionUseCase;
+    private final DeleteSectionUseCase deleteSectionUseCase;
+    private final AddLessonUseCase addLessonUseCase;
+    private final UpdateLessonUseCase updateLessonUseCase;
+    private final DeleteLessonUseCase deleteLessonUseCase
 
-    public CourseController(AddSectionUseCase addSectionUseCase, CreateCourseUseCase createCourseUseCase, GetCourseDetailsUseCase getCourseDetailsUseCase, PublishCourseUseCase publishCourseUseCase) {
-        this.addSectionUseCase = addSectionUseCase;
+    public CourseController(
+            CreateCourseUseCase createCourseUseCase,
+            UpdateCourseUseCase updateCourseUseCase,
+            DeleteCourseUseCase deleteCourseUseCase,
+            PublishCourseUseCase publishCourseUseCase,
+            GetCourseDetailsUseCase getCourseDetailsUseCase,
+            GetAllCoursesUseCase getAllCoursesUseCase,
+            AddSectionUseCase addSectionUseCase,
+            UpdateSectionUseCase updateSectionUseCase,
+            DeleteSectionUseCase deleteSectionUseCase,
+            AddLessonUseCase addLessonUseCase,
+            UpdateLessonUseCase updateLessonUseCase,
+            DeleteLessonUseCase deleteLessonUseCase
+    ) {
         this.createCourseUseCase = createCourseUseCase;
-        this.getCourseDetailsUseCase = getCourseDetailsUseCase;
+        this.updateCourseUseCase = updateCourseUseCase;
+        this.deleteCourseUseCase = deleteCourseUseCase;
         this.publishCourseUseCase = publishCourseUseCase;
+        this.getCourseDetailsUseCase = getCourseDetailsUseCase;
+        this.getAllCoursesUseCase = getAllCoursesUseCase;
+        this.addSectionUseCase = addSectionUseCase;
+        this.updateSectionUseCase = updateSectionUseCase;
+        this.deleteSectionUseCase = deleteSectionUseCase;
+        this.addLessonUseCase = addLessonUseCase;
+        this.updateLessonUseCase = updateLessonUseCase;
+        this.deleteLessonUseCase = deleteLessonUseCase;
     }
 
     @PostMapping

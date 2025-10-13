@@ -1,4 +1,4 @@
-package pl.dominik.elearningcenter.interfaces.rest.course.dto;
+package pl.dominik.elearningcenter.interfaces.rest.course.request;
 
 public record AddSectionRequest(
         String title,

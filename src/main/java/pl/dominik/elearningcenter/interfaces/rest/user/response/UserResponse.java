@@ -1,4 +1,4 @@
-package pl.dominik.elearningcenter.interfaces.rest.user.dto;
+package pl.dominik.elearningcenter.interfaces.rest.user.response;
 
 import pl.dominik.elearningcenter.application.user.dto.UserDTO;
 import pl.dominik.elearningcenter.domain.user.UserRole;
