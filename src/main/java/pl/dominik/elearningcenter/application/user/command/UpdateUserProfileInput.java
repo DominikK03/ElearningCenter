@@ -1,6 +1,6 @@
 package pl.dominik.elearningcenter.application.user.command;
 
-public record UpdateUserProfileCommand(
+public record UpdateUserProfileInput(
         Long userId,
         String newEmail,
         String newUsername

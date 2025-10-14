@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import pl.dominik.elearningcenter.application.course.command.GetAllCoursesCommand;
+import pl.dominik.elearningcenter.application.course.input.GetAllCoursesInput;
 import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
 import pl.dominik.elearningcenter.application.course.dto.PagedCoursesDTO;
 import pl.dominik.elearningcenter.domain.course.Course;
@@ -20,7 +20,7 @@ public class GetAllCoursesUseCase {
         this.courseRepository = courseRepository;
     }
 
-    public PagedCoursesDTO execute(GetAllCoursesCommand command){
+    public PagedCoursesDTO execute(GetAllCoursesInput command){
         Pageable pageable = PageRequest.of(command.page(), command.size());
         Page<Course> coursePage = courseRepository.findAll(pageable);
 

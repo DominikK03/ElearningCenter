@@ -1,15 +1,13 @@
-package pl.dominik.elearningcenter.application.course.command;
+package pl.dominik.elearningcenter.application.course.input;
 
-import pl.dominik.elearningcenter.application.user.command.GetAllUsersCommand;
-
-public record GetAllCoursesCommand(
+public record GetAllCoursesInput(
         int page,
         int size
 ) {
     private static final int MIN_SIZE = 1;
     private static final int MAX_SIZE = 100;
 
-    public GetAllCoursesCommand{
+    public GetAllCoursesInput {
         if (page < 0){
             throw new IllegalArgumentException("Page must be >= 0");
         }

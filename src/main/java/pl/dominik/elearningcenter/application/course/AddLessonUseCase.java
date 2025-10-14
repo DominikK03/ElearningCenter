@@ -2,7 +2,7 @@ package pl.dominik.elearningcenter.application.course;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dominik.elearningcenter.application.course.command.AddLessonCommand;
+import pl.dominik.elearningcenter.application.course.input.AddLessonInput;
 import pl.dominik.elearningcenter.domain.course.Course;
 import pl.dominik.elearningcenter.domain.course.CourseRepository;
 import pl.dominik.elearningcenter.domain.course.Lesson;
@@ -18,7 +18,7 @@ public class AddLessonUseCase {
     }
 
     @Transactional
-    public Long execute(AddLessonCommand command) {
+    public Long execute(AddLessonInput command) {
         Course course = courseRepository.findByIdOrThrow(command.courseId());
         if (!course.isOwnedBy(command.instructorId())) {
             throw new DomainException("Only course owner can add lesson to this course");

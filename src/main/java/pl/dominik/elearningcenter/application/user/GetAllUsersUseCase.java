@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import pl.dominik.elearningcenter.application.user.command.GetAllUsersCommand;
+import pl.dominik.elearningcenter.application.user.command.GetAllUsersInput;
 import pl.dominik.elearningcenter.application.user.dto.PagedUsersDTO;
 import pl.dominik.elearningcenter.application.user.dto.UserDTO;
 import pl.dominik.elearningcenter.domain.user.User;
@@ -20,7 +20,7 @@ public class GetAllUsersUseCase {
         this.userRepository = userRepository;
     }
 
-    public PagedUsersDTO execute(GetAllUsersCommand command){
+    public PagedUsersDTO execute(GetAllUsersInput command){
         Pageable pageable = PageRequest.of(command.page(), command.size());
         Page<User> userPage = userRepository.findAll(pageable);
 

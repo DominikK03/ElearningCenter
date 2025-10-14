@@ -1,9 +1,8 @@
-package pl.dominik.elearningcenter.application.course.command;
+package pl.dominik.elearningcenter.application.course.input;
 
-public record UpdateLessonCommand(
+public record AddLessonInput(
         Long courseId,
         Long sectionId,
-        Long lessonId,
         String title,
         String content,
         Integer orderIndex,

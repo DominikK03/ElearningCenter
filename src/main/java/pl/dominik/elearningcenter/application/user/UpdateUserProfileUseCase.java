@@ -2,7 +2,7 @@ package pl.dominik.elearningcenter.application.user;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dominik.elearningcenter.application.user.command.UpdateUserProfileCommand;
+import pl.dominik.elearningcenter.application.user.command.UpdateUserProfileInput;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Email;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Username;
@@ -19,7 +19,7 @@ public class UpdateUserProfileUseCase {
     }
 
     @Transactional
-    public void execute(UpdateUserProfileCommand command) {
+    public void execute(UpdateUserProfileInput command) {
         User user = userRepository.findById(command.userId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         if (command.newEmail() != null) {

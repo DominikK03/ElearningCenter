@@ -2,7 +2,7 @@ package pl.dominik.elearningcenter.application.course;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import pl.dominik.elearningcenter.application.course.command.AddSectionCommand;
+import pl.dominik.elearningcenter.application.course.input.AddSectionInput;
 import pl.dominik.elearningcenter.domain.course.Course;
 import pl.dominik.elearningcenter.domain.course.CourseRepository;
 import pl.dominik.elearningcenter.domain.course.Section;
@@ -16,7 +16,7 @@ public class AddSectionUseCase {
     }
 
     @Transactional
-    public Long execute(AddSectionCommand command){
+    public Long execute(AddSectionInput command){
         Course course = courseRepository.findByIdOrThrow(command.courseId());
         Section section = new Section(command.title(), command.orderIndex());
         course.addSection(section);

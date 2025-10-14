@@ -2,7 +2,7 @@ package pl.dominik.elearningcenter.application.user;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import pl.dominik.elearningcenter.application.user.command.RegisterUserCommand;
+import pl.dominik.elearningcenter.application.user.command.RegisterUserInput;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Email;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Password;
@@ -20,7 +20,7 @@ public class RegisterUserUseCase {
     }
 
     @Transactional
-    public Long execute(RegisterUserCommand command){
+    public Long execute(RegisterUserInput command){
         Email email = new Email(command.email());
         Username username = new Username(command.username());
 

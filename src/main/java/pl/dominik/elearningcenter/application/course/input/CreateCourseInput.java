@@ -1,10 +1,10 @@
-package pl.dominik.elearningcenter.application.course.command;
+package pl.dominik.elearningcenter.application.course.input;
 
 import pl.dominik.elearningcenter.domain.course.CourseLevel;
 
 import java.math.BigDecimal;
 
-public record CreateCourseCommand(
+public record CreateCourseInput(
         String title,
         String description,
         BigDecimal price,

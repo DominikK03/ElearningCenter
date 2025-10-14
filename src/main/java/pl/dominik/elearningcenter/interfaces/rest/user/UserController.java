@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.dominik.elearningcenter.application.user.AuthenticateUserUseCase;
 import pl.dominik.elearningcenter.application.user.RegisterUserUseCase;
-import pl.dominik.elearningcenter.application.user.command.AuthenticateUserCommand;
-import pl.dominik.elearningcenter.application.user.command.RegisterUserCommand;
+import pl.dominik.elearningcenter.application.user.command.AuthenticateUserInput;
+import pl.dominik.elearningcenter.application.user.command.RegisterUserInput;
 import pl.dominik.elearningcenter.application.user.dto.UserDTO;
 import pl.dominik.elearningcenter.interfaces.rest.user.request.LoginRequest;
 import pl.dominik.elearningcenter.interfaces.rest.user.request.RegisterUserRequest;
@@ -29,7 +29,7 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterUserRequest request){
-        RegisterUserCommand command = new RegisterUserCommand(
+        RegisterUserInput command = new RegisterUserInput(
                 request.username(),
                 request.email(),
                 request.password(),
@@ -45,7 +45,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request){
-        AuthenticateUserCommand command = new AuthenticateUserCommand(
+        AuthenticateUserInput command = new AuthenticateUserInput(
                 request.email(),
                 request.password()
         );

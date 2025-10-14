@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.dominik.elearningcenter.application.user.AuthenticateUserUseCase;
-import pl.dominik.elearningcenter.application.user.command.AuthenticateUserCommand;
+import pl.dominik.elearningcenter.application.user.command.AuthenticateUserInput;
 import pl.dominik.elearningcenter.application.user.dto.UserDTO;
 import pl.dominik.elearningcenter.infrastructure.security.JwtTokenProvider;
 import pl.dominik.elearningcenter.infrastructure.security.dto.JwtAuthenticationResponse;
@@ -26,7 +26,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<JwtAuthenticationResponse> login(@Valid @RequestBody LoginRequest request) {
-        AuthenticateUserCommand command = new AuthenticateUserCommand(
+        AuthenticateUserInput command = new AuthenticateUserInput(
                 request.email(),
                 request.password()
         );

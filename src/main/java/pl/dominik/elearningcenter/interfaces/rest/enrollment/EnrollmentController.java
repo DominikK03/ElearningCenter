@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import pl.dominik.elearningcenter.application.enrollment.EnrollStudentUseCase;
 import pl.dominik.elearningcenter.application.enrollment.GetStudentEnrollmentsUseCase;
 import pl.dominik.elearningcenter.application.enrollment.UpdateProgressUseCase;
-import pl.dominik.elearningcenter.application.enrollment.dto.EnrollStudentCommand;
+import pl.dominik.elearningcenter.application.enrollment.input.EnrollStudentInput;
 import pl.dominik.elearningcenter.application.enrollment.dto.EnrollmentDTO;
-import pl.dominik.elearningcenter.application.enrollment.dto.UpdateProgressCommand;
+import pl.dominik.elearningcenter.application.enrollment.input.UpdateProgressInput;
 import pl.dominik.elearningcenter.interfaces.rest.enrollment.request.EnrollStudentRequest;
 import pl.dominik.elearningcenter.interfaces.rest.enrollment.response.EnrollmentResponse;
 import pl.dominik.elearningcenter.interfaces.rest.enrollment.request.UpdateProgressRequest;
@@ -31,7 +31,7 @@ public class EnrollmentController {
 
     @PostMapping
     public ResponseEntity<EnrollmentResponse> enrollStudent(@RequestBody EnrollStudentRequest request){
-        EnrollStudentCommand command = new EnrollStudentCommand(request.studentId(), request.courseId());
+        EnrollStudentInput command = new EnrollStudentInput(request.studentId(), request.courseId());
         EnrollmentDTO enrollmentDTO = enrollStudentUseCase.execute(command);
         EnrollmentResponse response = EnrollmentResponse.from(enrollmentDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -39,7 +39,7 @@ public class EnrollmentController {
 
     @PutMapping("/{id}/progress")
     public ResponseEntity<EnrollmentResponse> updateProgress(@PathVariable Long id, @RequestBody UpdateProgressRequest request){
-        UpdateProgressCommand command = new UpdateProgressCommand(id, request.percentage());
+        UpdateProgressInput command = new UpdateProgressInput(id, request.percentage());
         EnrollmentDTO enrollmentDTO = updateProgressUseCase.execute(command);
         EnrollmentResponse response = EnrollmentResponse.from(enrollmentDTO);
         return ResponseEntity.ok(response);

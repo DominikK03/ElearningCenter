@@ -2,7 +2,7 @@ package pl.dominik.elearningcenter.application.enrollment;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dominik.elearningcenter.application.enrollment.dto.EnrollStudentCommand;
+import pl.dominik.elearningcenter.application.enrollment.input.EnrollStudentInput;
 import pl.dominik.elearningcenter.application.enrollment.dto.EnrollmentDTO;
 import pl.dominik.elearningcenter.domain.course.Course;
 import pl.dominik.elearningcenter.domain.course.CourseRepository;
@@ -23,7 +23,7 @@ public class EnrollStudentUseCase {
     }
 
     @Transactional
-    public EnrollmentDTO execute(EnrollStudentCommand command){
+    public EnrollmentDTO execute(EnrollStudentInput command){
         Course course = courseRepository.findById(command.courseId())
                 .orElseThrow(() -> new CourseNotFoundException("Course not found: " + command.courseId()));
         if (!course.isPublished()){

@@ -2,7 +2,7 @@ package pl.dominik.elearningcenter.application.user;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dominik.elearningcenter.application.user.command.ChangePasswordCommand;
+import pl.dominik.elearningcenter.application.user.command.ChangePasswordInput;
 import pl.dominik.elearningcenter.domain.user.User;
 import pl.dominik.elearningcenter.domain.user.UserRepository;
 import pl.dominik.elearningcenter.domain.user.exception.UserNotFoundException;
@@ -16,7 +16,7 @@ public class ChangePasswordUseCase {
     }
 
     @Transactional
-    public void execute(ChangePasswordCommand command){
+    public void execute(ChangePasswordInput command){
         User user = userRepository.findById(command.userId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         user.changePassword(command.oldPassword(), command.newPassword());

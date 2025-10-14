@@ -5,10 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.dominik.elearningcenter.application.course.*;
-import pl.dominik.elearningcenter.application.course.command.AddSectionCommand;
+import pl.dominik.elearningcenter.application.course.input.AddSectionInput;
+import pl.dominik.elearningcenter.application.course.input.UpdateCourseInput;
 import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
-import pl.dominik.elearningcenter.application.course.command.CreateCourseCommand;
+import pl.dominik.elearningcenter.application.course.input.CreateCourseInput;
+import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.request.AddSectionRequest;
+import pl.dominik.elearningcenter.interfaces.rest.course.request.UpdateCourseRequest;
 import pl.dominik.elearningcenter.interfaces.rest.course.response.CourseResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.request.CreateCourseRequest;
 
@@ -57,8 +60,8 @@ public class CourseController {
     }
 
     @PostMapping
-    public ResponseEntity<CourseResponse> createCourse(@RequestBody CreateCourseRequest request) {
-        CreateCourseCommand command = new CreateCourseCommand(
+    public ResponseEntity<AckResponse> createCourse(@RequestBody CreateCourseRequest request) {
+        CreateCourseInput command = new CreateCourseInput(
                 request.title(),
                 request.description(),
                 request.price(),
@@ -68,34 +71,42 @@ public class CourseController {
                 request.level()
         );
 
-        CourseDTO courseDTO = createCourseUseCase.execute(command);
+        Long courseId = createCourseUseCase.execute(command);
+        return ResponseEntity.status(HttpStatus.CREATED).body(AckResponse.created(courseId, "Course"));
+    }
 
-        CourseResponse response = CourseResponse.from(courseDTO);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @PutMapping("/{id}/update")
+    public ResponseEntity<AckResponse> updateCourse(@PathVariable Long id, @RequestBody UpdateCourseRequest request){
+        UpdateCourseInput command = new UpdateCourseInput(
+                id,
+                request.title(),
+                request.description(),
+                request.price(),
+                request.currency(),
+                request.category(),
+                request.level()
+        );
     }
 
     @PostMapping("/{id}/publish")
-    public ResponseEntity<CourseResponse> publishCourse(@PathVariable Long id) {
+    public ResponseEntity<AckResponse> publishCourse(@PathVariable Long id) {
 
         CourseDTO courseDTO = publishCourseUseCase.execute(id);
         CourseResponse response = CourseResponse.from(courseDTO);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(AckResponse.success("Course published successfully"));
     }
 
     @PostMapping("/{courseId}/sections")
-    public ResponseEntity<CourseResponse> addSection(@PathVariable Long courseId, @RequestBody AddSectionRequest request){
-        AddSectionCommand command = new AddSectionCommand(
+    public ResponseEntity<AckResponse> addSection(@PathVariable Long courseId, @RequestBody AddSectionRequest request){
+        AddSectionInput command = new AddSectionInput(
                 courseId,
                 request.title(),
                 request.orderIndex()
         );
 
-        CourseDTO courseDTO = addSectionUseCase.execute(command);
-        CourseResponse response = CourseResponse.from(courseDTO);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        Long sectionId = addSectionUseCase.execute(command);
+        return ResponseEntity.status(HttpStatus.CREATED).body(AckResponse.created(sectionId, "Section"));
     }
 
     @GetMapping("/{id}")

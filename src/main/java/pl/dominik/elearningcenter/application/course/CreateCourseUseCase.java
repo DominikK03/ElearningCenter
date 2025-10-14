@@ -2,8 +2,7 @@ package pl.dominik.elearningcenter.application.course;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
-import pl.dominik.elearningcenter.application.course.command.CreateCourseCommand;
+import pl.dominik.elearningcenter.application.course.input.CreateCourseInput;
 import pl.dominik.elearningcenter.domain.course.Course;
 import pl.dominik.elearningcenter.domain.course.CourseRepository;
 import pl.dominik.elearningcenter.domain.course.valueobject.CourseDescription;
@@ -19,7 +18,7 @@ public class CreateCourseUseCase {
     }
 
     @Transactional
-    public Long execute(CreateCourseCommand command){
+    public Long execute(CreateCourseInput command){
         CourseTitle courseTitle = new CourseTitle(command.title());
         CourseDescription courseDescription = new CourseDescription(command.description());
         Money money = Money.of(command.price(), command.currency());

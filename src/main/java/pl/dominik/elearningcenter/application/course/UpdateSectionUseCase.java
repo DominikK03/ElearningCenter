@@ -2,7 +2,7 @@ package pl.dominik.elearningcenter.application.course;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dominik.elearningcenter.application.course.command.UpdateSectionCommand;
+import pl.dominik.elearningcenter.application.course.input.UpdateSectionInput;
 import pl.dominik.elearningcenter.domain.course.Course;
 import pl.dominik.elearningcenter.domain.course.CourseRepository;
 import pl.dominik.elearningcenter.domain.course.Section;
@@ -18,7 +18,7 @@ public class UpdateSectionUseCase {
     }
 
     @Transactional
-    public void execute(UpdateSectionCommand command){
+    public void execute(UpdateSectionInput command){
         Course course = courseRepository.findById(command.courseId())
                 .orElseThrow(() -> new CourseNotFoundException("Course not found: " + command.courseId()));
         if (!course.isOwnedBy(command.instructorId())){

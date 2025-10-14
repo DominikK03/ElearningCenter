@@ -1,6 +1,6 @@
-package pl.dominik.elearningcenter.application.course.command;
+package pl.dominik.elearningcenter.application.course.input;
 
-public record DeleteLessonCommand(
+public record DeleteLessonInput(
         Long courseId,
         Long sectionId,
         Long lessonId,
