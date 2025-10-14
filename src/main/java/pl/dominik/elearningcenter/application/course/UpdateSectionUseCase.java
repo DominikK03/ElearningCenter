@@ -21,9 +21,7 @@ public class UpdateSectionUseCase {
     public void execute(UpdateSectionInput command){
         Course course = courseRepository.findById(command.courseId())
                 .orElseThrow(() -> new CourseNotFoundException("Course not found: " + command.courseId()));
-        if (!course.isOwnedBy(command.instructorId())){
-            throw new DomainException("Only course owner can update this course");
-        }
+        course.ensureOwnedBy(command.instructorId());
 
         Section section = course.findSection(command.sectionId());
         section.updateTitle(command.title());

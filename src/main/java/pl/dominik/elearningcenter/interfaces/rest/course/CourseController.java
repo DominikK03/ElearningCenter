@@ -1,19 +1,21 @@
 package pl.dominik.elearningcenter.interfaces.rest.course;
 
 
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pl.dominik.elearningcenter.application.course.*;
-import pl.dominik.elearningcenter.application.course.input.AddSectionInput;
-import pl.dominik.elearningcenter.application.course.input.UpdateCourseInput;
+import pl.dominik.elearningcenter.application.course.dto.PagedCoursesDTO;
+import pl.dominik.elearningcenter.application.course.input.*;
 import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
-import pl.dominik.elearningcenter.application.course.input.CreateCourseInput;
+import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
-import pl.dominik.elearningcenter.interfaces.rest.course.request.AddSectionRequest;
-import pl.dominik.elearningcenter.interfaces.rest.course.request.UpdateCourseRequest;
+import pl.dominik.elearningcenter.interfaces.rest.course.request.*;
 import pl.dominik.elearningcenter.interfaces.rest.course.response.CourseResponse;
-import pl.dominik.elearningcenter.interfaces.rest.course.request.CreateCourseRequest;
+import pl.dominik.elearningcenter.interfaces.rest.course.response.PagedCoursesResponse;
+import pl.dominik.elearningcenter.interfaces.rest.course.response.PublishCourseResponse;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -29,7 +31,7 @@ public class CourseController {
     private final DeleteSectionUseCase deleteSectionUseCase;
     private final AddLessonUseCase addLessonUseCase;
     private final UpdateLessonUseCase updateLessonUseCase;
-    private final DeleteLessonUseCase deleteLessonUseCase
+    private final DeleteLessonUseCase deleteLessonUseCase;
 
     public CourseController(
             CreateCourseUseCase createCourseUseCase,
@@ -60,13 +62,16 @@ public class CourseController {
     }
 
     @PostMapping
-    public ResponseEntity<AckResponse> createCourse(@RequestBody CreateCourseRequest request) {
+    public ResponseEntity<AckResponse> createCourse(
+            @RequestBody CreateCourseRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
         CreateCourseInput command = new CreateCourseInput(
                 request.title(),
                 request.description(),
                 request.price(),
                 request.currency(),
-                request.instructorId(),
+                userDetails.getUserId(),
                 request.category(),
                 request.level()
         );
@@ -76,7 +81,11 @@ public class CourseController {
     }
 
     @PutMapping("/{id}/update")
-    public ResponseEntity<AckResponse> updateCourse(@PathVariable Long id, @RequestBody UpdateCourseRequest request){
+    public ResponseEntity<AckResponse> updateCourse(
+            @PathVariable Long id,
+            @RequestBody UpdateCourseRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
         UpdateCourseInput command = new UpdateCourseInput(
                 id,
                 request.title(),
@@ -84,25 +93,37 @@ public class CourseController {
                 request.price(),
                 request.currency(),
                 request.category(),
-                request.level()
+                request.level(),
+                userDetails.getUserId()
         );
+
+        updateCourseUseCase.execute(command);
+        return ResponseEntity.ok(AckResponse.success("Course updated successfully"));
     }
 
     @PostMapping("/{id}/publish")
-    public ResponseEntity<AckResponse> publishCourse(@PathVariable Long id) {
+    public ResponseEntity<PublishCourseResponse> publishCourse(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
 
-        CourseDTO courseDTO = publishCourseUseCase.execute(id);
-        CourseResponse response = CourseResponse.from(courseDTO);
-
-        return ResponseEntity.ok(AckResponse.success("Course published successfully"));
+        CourseDTO courseDTO = publishCourseUseCase.execute(id, userDetails.getUserId());
+        PublishCourseResponse response = PublishCourseResponse.from(courseDTO);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{courseId}/sections")
-    public ResponseEntity<AckResponse> addSection(@PathVariable Long courseId, @RequestBody AddSectionRequest request){
+
+    public ResponseEntity<AckResponse> addSection(
+            @PathVariable Long courseId,
+            @RequestBody AddSectionRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
         AddSectionInput command = new AddSectionInput(
                 courseId,
                 request.title(),
-                request.orderIndex()
+                request.orderIndex(),
+                userDetails.getUserId()
         );
 
         Long sectionId = addSectionUseCase.execute(command);
@@ -110,10 +131,133 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CourseResponse> getCourseDetails(@PathVariable Long id){
+    public ResponseEntity<CourseResponse> getCourseDetails(@PathVariable Long id) {
         CourseDTO courseDTO = getCourseDetailsUseCase.execute(id);
         CourseResponse response = CourseResponse.from(courseDTO);
 
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<AckResponse> deleteCourse(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        DeleteCourseInput command = new DeleteCourseInput(
+                id,
+                userDetails.getUserId()
+        );
+
+        deleteCourseUseCase.execute(command);
+        return ResponseEntity.ok(AckResponse.success("Course deleted successfully"));
+    }
+
+    @GetMapping
+    public ResponseEntity<PagedCoursesResponse> getAllCourses(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        GetAllCoursesInput command = new GetAllCoursesInput(page, size);
+
+        PagedCoursesDTO pagedCourses = getAllCoursesUseCase.execute(command);
+        PagedCoursesResponse response = PagedCoursesResponse.from(pagedCourses);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{courseId}/sections/{sectionId}")
+    public ResponseEntity<AckResponse> updateSection(
+            @PathVariable Long courseId,
+            @PathVariable Long sectionId,
+            @RequestBody UpdateSectionRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UpdateSectionInput command = new UpdateSectionInput(
+                courseId,
+                sectionId,
+                request.title(),
+                request.orderIndex(),
+                userDetails.getUserId()
+        );
+
+        updateSectionUseCase.execute(command);
+        return ResponseEntity.ok(AckResponse.updated("Section"));
+    }
+
+    @DeleteMapping("/{courseId}/sections/{sectionId}")
+    public ResponseEntity<AckResponse> deleteSection(
+            @PathVariable Long courseId,
+            @PathVariable Long sectionId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        DeleteSectionInput command = new DeleteSectionInput(
+                courseId,
+                sectionId,
+                userDetails.getUserId()
+        );
+
+        deleteSectionUseCase.execute(command);
+        return ResponseEntity.ok(AckResponse.success("Section deleted successfully"));
+    }
+
+    @PostMapping("/{courseId}/sections/{sectionId}/lessons")
+    public ResponseEntity<AckResponse> addLesson(
+            @PathVariable Long courseId,
+            @PathVariable Long sectionId,
+            @RequestBody AddLessonRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        AddLessonInput command = new AddLessonInput(
+                courseId,
+                sectionId,
+                request.title(),
+                request.content(),
+                request.orderIndex(),
+                userDetails.getUserId()
+        );
+        Long lessonId = addLessonUseCase.execute(command);
+        return ResponseEntity.status(HttpStatus.CREATED).body(AckResponse.created(lessonId, "Lesson"));
+
+    }
+
+    @PutMapping("/{courseId}/sections/{sectionId}/lessons/{lessonId}")
+    public ResponseEntity<AckResponse> updateLesson(
+            @PathVariable Long courseId,
+            @PathVariable Long sectionId,
+            @PathVariable Long lessonId,
+            @RequestBody UpdateLessonRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UpdateLessonInput command = new UpdateLessonInput(
+                courseId,
+                sectionId,
+                lessonId,
+                request.title(),
+                request.content(),
+                request.orderIndex(),
+                userDetails.getUserId()
+        );
+
+        updateLessonUseCase.execute(command);
+        return ResponseEntity.ok(AckResponse.updated("Lesson"));
+    }
+
+    @DeleteMapping("/{courseId}/sections/{sectionId}/lessons/{lessonId}")
+    public ResponseEntity<AckResponse> deleteLesson(
+            @PathVariable Long courseId,
+            @PathVariable Long sectionId,
+            @PathVariable Long lessonId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        DeleteLessonInput command = new DeleteLessonInput(
+                courseId,
+                sectionId,
+                lessonId,
+                userDetails.getUserId()
+        );
+        deleteLessonUseCase.execute(command);
+        return ResponseEntity.ok(AckResponse.success("Lesson deleted successfully"));
+    }
+
+
 }

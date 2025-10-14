@@ -2,7 +2,7 @@ package pl.dominik.elearningcenter.application.user;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dominik.elearningcenter.application.user.command.ChangePasswordInput;
+import pl.dominik.elearningcenter.application.user.input.ChangePasswordInput;
 import pl.dominik.elearningcenter.domain.user.User;
 import pl.dominik.elearningcenter.domain.user.UserRepository;
 import pl.dominik.elearningcenter.domain.user.exception.UserNotFoundException;

@@ -2,7 +2,7 @@ package pl.dominik.elearningcenter.application.user;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dominik.elearningcenter.application.user.command.UpdateUserProfileInput;
+import pl.dominik.elearningcenter.application.user.input.UpdateUserProfileInput;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Email;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Username;

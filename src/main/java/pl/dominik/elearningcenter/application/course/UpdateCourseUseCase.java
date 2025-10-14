@@ -21,9 +21,7 @@ public class UpdateCourseUseCase {
     @Transactional
     public void execute(UpdateCourseInput command){
         Course course = courseRepository.findByIdOrThrow(command.courseId());
-        if (!course.isOwnedBy(command.instructorId())){
-            throw new DomainException("Only course owner can update the course");
-        }
+        course.ensureOwnedBy(command.instructorId());
         course.updateTitle(new CourseTitle(command.title()));
         course.updateDescription(new CourseDescription(command.description()));
         course.updatePrice(Money.of(command.priceAmount(), command.priceCurrency()));

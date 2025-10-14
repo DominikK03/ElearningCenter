@@ -4,7 +4,7 @@ package pl.dominik.elearningcenter.application.user;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pl.dominik.elearningcenter.application.user.command.AuthenticateUserInput;
+import pl.dominik.elearningcenter.application.user.input.AuthenticateUserInput;
 import pl.dominik.elearningcenter.application.user.dto.UserDTO;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Email;

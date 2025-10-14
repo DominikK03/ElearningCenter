@@ -18,9 +18,7 @@ public class DeleteCourseUseCase {
     @Transactional
     public void execute(DeleteCourseInput command){
         Course course = courseRepository.findByIdOrThrow(command.courseId());
-        if (!course.isOwnedBy(command.instructorId())){
-            throw new DomainException("Only course owner can delete the course");
-        }
+        course.ensureOwnedBy(command.instructorId());
         courseRepository.delete(course);
     }
 }

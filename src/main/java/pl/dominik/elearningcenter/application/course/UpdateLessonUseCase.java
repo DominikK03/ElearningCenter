@@ -20,9 +20,7 @@ public class UpdateLessonUseCase {
     @Transactional
     public void execute(UpdateLessonInput command){
         Course course = courseRepository.findByIdOrThrow(command.courseId());
-        if (!course.isOwnedBy(command.instructorId())){
-            throw new DomainException("Only course owner can update lesson");
-        }
+        course.ensureOwnedBy(command.instructorId());
         Section section = course.findSection(command.sectionId());
         Lesson lesson = section.findLesson(command.lessonId());
         lesson.updateTitle(command.title());

@@ -18,9 +18,7 @@ public class DeleteSectionUseCase {
     @Transactional
     public void execute(DeleteSectionInput command){
         Course course = courseRepository.findByIdOrThrow(command.courseId());
-        if (!course.isOwnedBy(command.instructorId())){
-            throw new DomainException("Only course owner can delete sections");
-        }
+        course.ensureOwnedBy(command.instructorId());
         course.removeSection(command.sectionId());
     }
 }

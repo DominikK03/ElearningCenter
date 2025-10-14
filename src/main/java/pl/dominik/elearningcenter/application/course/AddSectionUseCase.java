@@ -18,6 +18,7 @@ public class AddSectionUseCase {
     @Transactional
     public Long execute(AddSectionInput command){
         Course course = courseRepository.findByIdOrThrow(command.courseId());
+
         Section section = new Section(command.title(), command.orderIndex());
         course.addSection(section);
         return section.getId();

@@ -19,9 +19,7 @@ public class DeleteLessonUseCase {
     @Transactional
     public void execute(DeleteLessonInput command){
         Course course = courseRepository.findByIdOrThrow(command.courseId());
-        if (!course.isOwnedBy(command.instructorId())){
-            throw new DomainException("Only course owner can modify it!");
-        }
+        course.ensureOwnedBy(command.instructorId());
         Section section = course.findSection(command.sectionId());
         section.removeLesson(command.lessonId());
     }

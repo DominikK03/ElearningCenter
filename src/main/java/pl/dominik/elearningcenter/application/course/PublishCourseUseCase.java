@@ -5,11 +5,9 @@ import org.springframework.stereotype.Service;
 import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
 import pl.dominik.elearningcenter.domain.course.Course;
 import pl.dominik.elearningcenter.domain.course.CourseRepository;
-import pl.dominik.elearningcenter.domain.course.exception.CourseNotFoundException;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 
 @Service
-@Transactional
 public class PublishCourseUseCase {
     private final CourseRepository courseRepository;
 
@@ -17,8 +15,10 @@ public class PublishCourseUseCase {
         this.courseRepository = courseRepository;
     }
 
-    public CourseDTO execute(Long courseId){
+    @Transactional
+    public CourseDTO execute(Long courseId, Long instructorId){
         Course course = courseRepository.findByIdOrThrow(courseId);
+        course.ensureOwnedBy(instructorId);
         course.publish();
         Course publishedCourse = courseRepository.save(course);
         return CourseDTO.from(publishedCourse);

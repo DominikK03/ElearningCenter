@@ -6,6 +6,7 @@ import pl.dominik.elearningcenter.domain.course.exception.SectionNotFoundExcepti
 import pl.dominik.elearningcenter.domain.course.valueobject.CourseDescription;
 import pl.dominik.elearningcenter.domain.course.valueobject.CourseTitle;
 import pl.dominik.elearningcenter.domain.shared.AggregateRoot;
+import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Money;
 
 import java.time.LocalDateTime;
@@ -107,6 +108,12 @@ public class Course extends AggregateRoot<Long> {
 
     public void unpublish(){
         this.published = false;
+    }
+
+    public void ensureOwnedBy(Long userId){
+        if(!isOwnedBy(userId)){
+            throw new DomainException("Only course owner can perform this action");
+        }
     }
 
     public void addSection(Section section){

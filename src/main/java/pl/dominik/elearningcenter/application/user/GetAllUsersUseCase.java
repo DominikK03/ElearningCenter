@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import pl.dominik.elearningcenter.application.user.command.GetAllUsersInput;
+import pl.dominik.elearningcenter.application.user.input.GetAllUsersInput;
 import pl.dominik.elearningcenter.application.user.dto.PagedUsersDTO;
 import pl.dominik.elearningcenter.application.user.dto.UserDTO;
 import pl.dominik.elearningcenter.domain.user.User;

@@ -10,7 +10,6 @@ public record CreateCourseRequest(
         BigDecimal price,
         String currency,
         String category,
-        CourseLevel level,
-        Long instructorId
-){
+        CourseLevel level
+) {
 }
