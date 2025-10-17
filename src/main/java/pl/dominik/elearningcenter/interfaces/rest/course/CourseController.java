@@ -1,18 +1,31 @@
 package pl.dominik.elearningcenter.interfaces.rest.course;
 
-
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import pl.dominik.elearningcenter.application.course.*;
+import pl.dominik.elearningcenter.application.course.command.CreateCourseUseCase;
+import pl.dominik.elearningcenter.application.course.command.UpdateCourseUseCase;
+import pl.dominik.elearningcenter.application.course.command.DeleteCourseUseCase;
+import pl.dominik.elearningcenter.application.course.command.PublishCourseUseCase;
+import pl.dominik.elearningcenter.application.course.command.UnpublishCourseUseCase;
+import pl.dominik.elearningcenter.application.course.query.GetCourseDetailsUseCase;
+import pl.dominik.elearningcenter.application.course.query.GetAllCoursesUseCase;
+import pl.dominik.elearningcenter.application.course.query.GetPublishedCourseUseCase;
+import pl.dominik.elearningcenter.application.course.query.GetCoursesByInstructorUseCase;
 import pl.dominik.elearningcenter.application.course.dto.PagedCoursesDTO;
-import pl.dominik.elearningcenter.application.course.input.*;
 import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
+import pl.dominik.elearningcenter.application.course.input.CreateCourseInput;
+import pl.dominik.elearningcenter.application.course.input.UpdateCourseInput;
+import pl.dominik.elearningcenter.application.course.input.DeleteCourseInput;
+import pl.dominik.elearningcenter.application.course.input.UnpublishCourseInput;
+import pl.dominik.elearningcenter.application.course.input.GetAllCoursesInput;
+import pl.dominik.elearningcenter.application.course.input.GetPublishedCoursesInput;
+import pl.dominik.elearningcenter.application.course.input.GetCoursesByInstructorInput;
 import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
-import pl.dominik.elearningcenter.interfaces.rest.course.request.*;
+import pl.dominik.elearningcenter.interfaces.rest.course.request.CreateCourseRequest;
+import pl.dominik.elearningcenter.interfaces.rest.course.request.UpdateCourseRequest;
 import pl.dominik.elearningcenter.interfaces.rest.course.response.CourseResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.response.PagedCoursesResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.response.PublishCourseResponse;
@@ -24,41 +37,32 @@ public class CourseController {
     private final UpdateCourseUseCase updateCourseUseCase;
     private final DeleteCourseUseCase deleteCourseUseCase;
     private final PublishCourseUseCase publishCourseUseCase;
+    private final UnpublishCourseUseCase unpublishCourseUseCase;
     private final GetCourseDetailsUseCase getCourseDetailsUseCase;
     private final GetAllCoursesUseCase getAllCoursesUseCase;
-    private final AddSectionUseCase addSectionUseCase;
-    private final UpdateSectionUseCase updateSectionUseCase;
-    private final DeleteSectionUseCase deleteSectionUseCase;
-    private final AddLessonUseCase addLessonUseCase;
-    private final UpdateLessonUseCase updateLessonUseCase;
-    private final DeleteLessonUseCase deleteLessonUseCase;
+    private final GetPublishedCourseUseCase getPublishedCourseUseCase;
+    private final GetCoursesByInstructorUseCase getCoursesByInstructorUseCase;
 
     public CourseController(
             CreateCourseUseCase createCourseUseCase,
             UpdateCourseUseCase updateCourseUseCase,
             DeleteCourseUseCase deleteCourseUseCase,
             PublishCourseUseCase publishCourseUseCase,
+            UnpublishCourseUseCase unpublishCourseUseCase,
             GetCourseDetailsUseCase getCourseDetailsUseCase,
             GetAllCoursesUseCase getAllCoursesUseCase,
-            AddSectionUseCase addSectionUseCase,
-            UpdateSectionUseCase updateSectionUseCase,
-            DeleteSectionUseCase deleteSectionUseCase,
-            AddLessonUseCase addLessonUseCase,
-            UpdateLessonUseCase updateLessonUseCase,
-            DeleteLessonUseCase deleteLessonUseCase
+            GetPublishedCourseUseCase getPublishedCourseUseCase,
+            GetCoursesByInstructorUseCase getCoursesByInstructorUseCase
     ) {
         this.createCourseUseCase = createCourseUseCase;
         this.updateCourseUseCase = updateCourseUseCase;
         this.deleteCourseUseCase = deleteCourseUseCase;
         this.publishCourseUseCase = publishCourseUseCase;
+        this.unpublishCourseUseCase = unpublishCourseUseCase;
         this.getCourseDetailsUseCase = getCourseDetailsUseCase;
         this.getAllCoursesUseCase = getAllCoursesUseCase;
-        this.addSectionUseCase = addSectionUseCase;
-        this.updateSectionUseCase = updateSectionUseCase;
-        this.deleteSectionUseCase = deleteSectionUseCase;
-        this.addLessonUseCase = addLessonUseCase;
-        this.updateLessonUseCase = updateLessonUseCase;
-        this.deleteLessonUseCase = deleteLessonUseCase;
+        this.getPublishedCourseUseCase = getPublishedCourseUseCase;
+        this.getCoursesByInstructorUseCase = getCoursesByInstructorUseCase;
     }
 
     @PostMapping
@@ -106,28 +110,19 @@ public class CourseController {
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-
         CourseDTO courseDTO = publishCourseUseCase.execute(id, userDetails.getUserId());
         PublishCourseResponse response = PublishCourseResponse.from(courseDTO);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{courseId}/sections")
-
-    public ResponseEntity<AckResponse> addSection(
-            @PathVariable Long courseId,
-            @RequestBody AddSectionRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+    @PostMapping("/{id}/unpublish")
+    public ResponseEntity<AckResponse> unpublishCourse(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
-        AddSectionInput command = new AddSectionInput(
-                courseId,
-                request.title(),
-                request.orderIndex(),
-                userDetails.getUserId()
-        );
-
-        Long sectionId = addSectionUseCase.execute(command);
-        return ResponseEntity.status(HttpStatus.CREATED).body(AckResponse.created(sectionId, "Section"));
+        UnpublishCourseInput command = new UnpublishCourseInput(id, currentUser.getUserId());
+        unpublishCourseUseCase.execute(command);
+        return ResponseEntity.ok(AckResponse.success("Course unpublished successfully"));
     }
 
     @GetMapping("/{id}")
@@ -158,106 +153,37 @@ public class CourseController {
             @RequestParam(defaultValue = "10") int size
     ) {
         GetAllCoursesInput command = new GetAllCoursesInput(page, size);
-
         PagedCoursesDTO pagedCourses = getAllCoursesUseCase.execute(command);
         PagedCoursesResponse response = PagedCoursesResponse.from(pagedCourses);
-
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{courseId}/sections/{sectionId}")
-    public ResponseEntity<AckResponse> updateSection(
-            @PathVariable Long courseId,
-            @PathVariable Long sectionId,
-            @RequestBody UpdateSectionRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        UpdateSectionInput command = new UpdateSectionInput(
-                courseId,
-                sectionId,
-                request.title(),
-                request.orderIndex(),
-                userDetails.getUserId()
-        );
-
-        updateSectionUseCase.execute(command);
-        return ResponseEntity.ok(AckResponse.updated("Section"));
+    @GetMapping("/published")
+    public ResponseEntity<PagedCoursesResponse> getPublishedCourses(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        GetPublishedCoursesInput commmand = new GetPublishedCoursesInput(page, size);
+        PagedCoursesDTO dto = getPublishedCourseUseCase.execute(commmand);
+        return ResponseEntity.ok(PagedCoursesResponse.from(dto));
     }
 
-    @DeleteMapping("/{courseId}/sections/{sectionId}")
-    public ResponseEntity<AckResponse> deleteSection(
-            @PathVariable Long courseId,
-            @PathVariable Long sectionId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        DeleteSectionInput command = new DeleteSectionInput(
-                courseId,
-                sectionId,
-                userDetails.getUserId()
-        );
 
-        deleteSectionUseCase.execute(command);
-        return ResponseEntity.ok(AckResponse.success("Section deleted successfully"));
+    @GetMapping("/instructor/{instructorId}")
+    public ResponseEntity<PagedCoursesResponse> getCoursesByInstructor(
+            @PathVariable Long instructorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        GetCoursesByInstructorInput command = new GetCoursesByInstructorInput(
+                instructorId,
+                page,
+                size
+        );
+        PagedCoursesDTO dto = getCoursesByInstructorUseCase.execute(command);
+        return ResponseEntity.ok(PagedCoursesResponse.from(dto));
     }
 
-    @PostMapping("/{courseId}/sections/{sectionId}/lessons")
-    public ResponseEntity<AckResponse> addLesson(
-            @PathVariable Long courseId,
-            @PathVariable Long sectionId,
-            @RequestBody AddLessonRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        AddLessonInput command = new AddLessonInput(
-                courseId,
-                sectionId,
-                request.title(),
-                request.content(),
-                request.orderIndex(),
-                userDetails.getUserId()
-        );
-        Long lessonId = addLessonUseCase.execute(command);
-        return ResponseEntity.status(HttpStatus.CREATED).body(AckResponse.created(lessonId, "Lesson"));
-
-    }
-
-    @PutMapping("/{courseId}/sections/{sectionId}/lessons/{lessonId}")
-    public ResponseEntity<AckResponse> updateLesson(
-            @PathVariable Long courseId,
-            @PathVariable Long sectionId,
-            @PathVariable Long lessonId,
-            @RequestBody UpdateLessonRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        UpdateLessonInput command = new UpdateLessonInput(
-                courseId,
-                sectionId,
-                lessonId,
-                request.title(),
-                request.content(),
-                request.orderIndex(),
-                userDetails.getUserId()
-        );
-
-        updateLessonUseCase.execute(command);
-        return ResponseEntity.ok(AckResponse.updated("Lesson"));
-    }
-
-    @DeleteMapping("/{courseId}/sections/{sectionId}/lessons/{lessonId}")
-    public ResponseEntity<AckResponse> deleteLesson(
-            @PathVariable Long courseId,
-            @PathVariable Long sectionId,
-            @PathVariable Long lessonId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        DeleteLessonInput command = new DeleteLessonInput(
-                courseId,
-                sectionId,
-                lessonId,
-                userDetails.getUserId()
-        );
-        deleteLessonUseCase.execute(command);
-        return ResponseEntity.ok(AckResponse.success("Lesson deleted successfully"));
-    }
 
 
 }

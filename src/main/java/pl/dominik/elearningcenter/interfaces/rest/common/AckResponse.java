@@ -6,14 +6,14 @@ public record AckResponse(
 ) {
     public static AckResponse created(Long id, String resourceType){
         return new AckResponse(
-                resourceType + "created successfully",
+                resourceType + " created successfully",
                 id
         );
     }
 
     public static AckResponse updated(String resourceType){
         return new AckResponse(
-                resourceType + "updated usccessfully",
+                resourceType + " updated successfully",
                 null
         );
     }

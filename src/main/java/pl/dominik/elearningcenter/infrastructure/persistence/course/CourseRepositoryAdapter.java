@@ -14,7 +14,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
 
     private final CourseJpaRepository jpaRepository;
 
-    public CourseRepositoryAdapter(CourseJpaRepository jpaRepository){
+    private CourseRepositoryAdapter(CourseJpaRepository jpaRepository){
         this.jpaRepository = jpaRepository;
     }
 
@@ -40,8 +40,8 @@ public class CourseRepositoryAdapter implements CourseRepository {
 
 
     @Override
-    public List<Course> findByInstructorId(Long instructorId) {
-        return jpaRepository.findByInstructorId(instructorId);
+    public Page<Course> findByInstructorId(Long instructorId, Pageable pageable) {
+        return jpaRepository.findByInstructorId(instructorId, pageable);
     }
 
     @Override
@@ -50,8 +50,8 @@ public class CourseRepositoryAdapter implements CourseRepository {
     }
 
     @Override
-    public List<Course> findByPublished(boolean published) {
-        return jpaRepository.findByPublished(published);
+    public Page<Course> findByPublished(boolean published, Pageable pageable) {
+        return jpaRepository.findByPublished(published, pageable);
     }
 
     @Override

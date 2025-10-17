@@ -16,11 +16,11 @@ public interface CourseRepository {
     List<Course> findAll();
     Page<Course> findAll(Pageable pageable);
 
-    List<Course> findByInstructorId(Long instructorId);
+    Page<Course> findByInstructorId(Long instructorId, Pageable pageable);
 
     List<Course> findByCategory(String category);
 
-    List<Course> findByPublished(boolean published);
+    Page<Course> findByPublished(boolean published, Pageable pageable);
 
     void delete(Course course);
 
