@@ -49,7 +49,7 @@ public class Enrollment extends AggregateRoot<Long> {
         );
     }
 
-    public void updateProgress(int percentage) {
+    public void recalculateProgress(int percentage) {
         this.progress = Progress.of(percentage);
 
         if (this.progress.isCompleted() && this.status == EnrollmentStatus.ACTIVE) {
