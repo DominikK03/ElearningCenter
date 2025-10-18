@@ -21,4 +21,6 @@ interface QuizAttemptJpaRepository extends JpaRepository<QuizAttempt, Long> {
     boolean existsByQuizIdAndStudentId(Long quizId, Long studentId);
 
     long countByQuizId(Long quizId);
+
+    void deleteByQuizId(Long quizId);
 }

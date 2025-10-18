@@ -1,7 +1,7 @@
 package pl.dominik.elearningcenter.application.course.command;
 
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.dominik.elearningcenter.application.course.input.CreateCourseInput;
 import pl.dominik.elearningcenter.domain.course.Course;
 import pl.dominik.elearningcenter.domain.course.CourseRepository;

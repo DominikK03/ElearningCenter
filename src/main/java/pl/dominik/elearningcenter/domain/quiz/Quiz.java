@@ -110,12 +110,6 @@ public class Quiz extends AggregateRoot<Long> {
         this.lessonId = null;
     }
 
-    public void ensureCanBeEdited(boolean hasAttempts) {
-        if (hasAttempts) {
-            throw new DomainException("Cannot edit quiz that has student attempts");
-        }
-    }
-
     public int calculateMaxScore() {
         return questions.stream()
                 .mapToInt(Question::getPoints)
@@ -132,6 +126,12 @@ public class Quiz extends AggregateRoot<Long> {
 
     public boolean isOwnedBy(Long instructorId) {
         return this.instructorId.equals(instructorId);
+    }
+
+    public void ensureOwnedBy(Long userId){
+        if(!isOwnedBy(userId)){
+            throw new DomainException("Only course owner can perform this action");
+        }
     }
 
     public boolean isAssignedToLesson() {

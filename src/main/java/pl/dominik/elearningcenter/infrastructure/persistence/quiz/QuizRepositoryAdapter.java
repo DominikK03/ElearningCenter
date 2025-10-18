@@ -1,16 +1,23 @@
 package pl.dominik.elearningcenter.infrastructure.persistence.quiz;
 
+import org.springframework.stereotype.Repository;
 import pl.dominik.elearningcenter.domain.quiz.Quiz;
 import pl.dominik.elearningcenter.domain.quiz.QuizRepository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class QuizRepositoryAdapter implements QuizRepository {
     private final QuizJpaRepository jpaRepository;
+    private final QuizAttemptJpaRepository attemptJpaRepository;
 
-    public QuizRepositoryAdapter(QuizJpaRepository jpaRepository) {
+    public QuizRepositoryAdapter(
+            QuizJpaRepository jpaRepository,
+            QuizAttemptJpaRepository attemptJpaRepository
+    ) {
         this.jpaRepository = jpaRepository;
+        this.attemptJpaRepository = attemptJpaRepository;
     }
     @Override
     public Quiz save(Quiz quiz) {
@@ -49,6 +56,7 @@ public class QuizRepositoryAdapter implements QuizRepository {
 
     @Override
     public void delete(Quiz quiz) {
+        attemptJpaRepository.deleteByQuizId(quiz.getId());
         jpaRepository.delete(quiz);
     }
 }

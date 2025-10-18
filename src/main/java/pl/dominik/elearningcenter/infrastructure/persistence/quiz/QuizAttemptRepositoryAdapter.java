@@ -1,11 +1,13 @@
 package pl.dominik.elearningcenter.infrastructure.persistence.quiz;
 
+import org.springframework.stereotype.Repository;
 import pl.dominik.elearningcenter.domain.quiz.QuizAttempt;
 import pl.dominik.elearningcenter.domain.quiz.QuizAttemptRepository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class QuizAttemptRepositoryAdapter implements QuizAttemptRepository {
     private final QuizAttemptJpaRepository jpaRepository;
 

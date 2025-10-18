@@ -116,7 +116,7 @@ public class Question {
         this.points = newPoints;
     }
 
-    public boolean inAnswerCorrect(List<Integer> selectedIndexes) {
+    public boolean isAnswerCorrect(List<Integer> selectedIndexes) {
         if (selectedIndexes == null || selectedIndexes.isEmpty()) {
             return false;
         }
