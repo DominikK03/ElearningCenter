@@ -28,6 +28,8 @@ public interface QuizAttemptRepository {
 
     void delete(QuizAttempt quizAttempt);
 
+    void deleteByQuizId(Long quizId);
+
     default QuizAttempt findByIdOrThrow(Long attemptId) {
         return findById(attemptId)
                 .orElseThrow(() -> new QuizAttemptNotFoundException("Quiz attempt not found: " + attemptId));

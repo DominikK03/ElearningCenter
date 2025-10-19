@@ -69,4 +69,9 @@ public class QuizAttemptRepositoryAdapter implements QuizAttemptRepository {
     public void delete(QuizAttempt quizAttempt) {
         jpaRepository.delete(quizAttempt);
     }
+
+    @Override
+    public void deleteByQuizId(Long quizId) {
+        jpaRepository.deleteByQuizId(quizId);
+    }
 }

@@ -1,6 +1,7 @@
 package pl.dominik.elearningcenter.domain.quiz.valueobject;
 
 import jakarta.persistence.*;
+import pl.dominik.elearningcenter.infrastructure.persistence.converter.IntegerListConverter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,9 +14,8 @@ public final class StudentAnswer {
     @Column(name = "question_id", nullable = false)
     private Long questionId;
 
-    @ElementCollection
-    @CollectionTable(name = "student_answer_indexes", joinColumns = @JoinColumn(name = "quiz_attempt_id"))
-    @Column(name = "answer_index")
+    @Column(name = "selected_answer_indexes", nullable = false, length = 500)
+    @Convert(converter = IntegerListConverter.class)
     private List<Integer> selectedAnswerIndexes = new ArrayList<>();
 
     protected StudentAnswer() {

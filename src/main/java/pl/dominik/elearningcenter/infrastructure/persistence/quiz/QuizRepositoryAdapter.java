@@ -10,14 +10,9 @@ import java.util.Optional;
 @Repository
 public class QuizRepositoryAdapter implements QuizRepository {
     private final QuizJpaRepository jpaRepository;
-    private final QuizAttemptJpaRepository attemptJpaRepository;
 
-    public QuizRepositoryAdapter(
-            QuizJpaRepository jpaRepository,
-            QuizAttemptJpaRepository attemptJpaRepository
-    ) {
+    public QuizRepositoryAdapter(QuizJpaRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
-        this.attemptJpaRepository = attemptJpaRepository;
     }
     @Override
     public Quiz save(Quiz quiz) {
@@ -27,6 +22,11 @@ public class QuizRepositoryAdapter implements QuizRepository {
     @Override
     public Optional<Quiz> findById(Long id) {
         return jpaRepository.findById(id);
+    }
+
+    @Override
+    public Optional<Quiz> findByIdAndInstructorId(Long id, Long instructorId) {
+        return jpaRepository.findByIdAndInstructorId(id, instructorId);
     }
 
     @Override
@@ -56,7 +56,6 @@ public class QuizRepositoryAdapter implements QuizRepository {
 
     @Override
     public void delete(Quiz quiz) {
-        attemptJpaRepository.deleteByQuizId(quiz.getId());
         jpaRepository.delete(quiz);
     }
 }

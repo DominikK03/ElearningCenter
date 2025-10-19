@@ -1,5 +1,6 @@
 package pl.dominik.elearningcenter.domain.quiz;
 
+import pl.dominik.elearningcenter.domain.quiz.exception.QuizAccessDeniedException;
 import pl.dominik.elearningcenter.domain.quiz.exception.QuizNotFoundException;
 
 import java.util.List;
@@ -9,6 +10,8 @@ public interface QuizRepository {
     Quiz save(Quiz quiz);
 
     Optional<Quiz> findById(Long id);
+
+    Optional<Quiz> findByIdAndInstructorId(Long id, Long instructorId);
 
     List<Quiz> findAll();
 
@@ -25,5 +28,15 @@ public interface QuizRepository {
     default Quiz findByIdOrThrow(Long quizId) {
         return findById(quizId)
                 .orElseThrow(() -> new QuizNotFoundException("Quiz not found: " + quizId));
+    }
+
+    default Quiz findByIdAndInstructorIdOrThrow(Long quizId, Long instructorId) {
+        return findByIdAndInstructorId(quizId, instructorId)
+                .orElseThrow(() -> {
+                    if (!existsById(quizId)) {
+                        return new QuizNotFoundException("Quiz not found: " + quizId);
+                    }
+                    return new QuizAccessDeniedException("Access denied to quiz: " + quizId);
+                });
     }
 }

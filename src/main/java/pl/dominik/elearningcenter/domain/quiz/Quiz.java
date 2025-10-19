@@ -3,11 +3,14 @@ package pl.dominik.elearningcenter.domain.quiz;
 import jakarta.persistence.*;
 import pl.dominik.elearningcenter.domain.shared.AggregateRoot;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
+import pl.dominik.elearningcenter.domain.quiz.valueobject.StudentAnswer;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "quizzes")
@@ -113,6 +116,25 @@ public class Quiz extends AggregateRoot<Long> {
     public int calculateMaxScore() {
         return questions.stream()
                 .mapToInt(Question::getPoints)
+                .sum();
+    }
+
+    public int calculateScore(List<StudentAnswer> studentAnswers) {
+        Map<Long, StudentAnswer> answerMap = studentAnswers.stream()
+                .collect(Collectors.toMap(
+                        StudentAnswer::getQuestionId,
+                        sa -> sa
+                ));
+
+        return questions.stream()
+                .mapToInt(question -> {
+                    StudentAnswer studentAnswer = answerMap.get(question.getId());
+                    if (studentAnswer == null) {
+                        return 0;
+                    }
+                    boolean isCorrect = question.isAnswerCorrect(studentAnswer.getSelectedAnswerIndexes());
+                    return isCorrect ? question.getPoints() : 0;
+                })
                 .sum();
     }
 

@@ -9,6 +9,8 @@ import java.util.Optional;
 interface QuizJpaRepository extends JpaRepository<Quiz, Long> {
     Optional<Quiz> findByLessonId(Long lessonId);
 
+    Optional<Quiz> findByIdAndInstructorId(Long id, Long instructorId);
+
     List<Quiz> findByInstructorId(Long instructorId);
 
     boolean existsByLessonId(Long lessonId);
