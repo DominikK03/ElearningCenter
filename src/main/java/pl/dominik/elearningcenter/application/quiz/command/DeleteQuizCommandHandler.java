@@ -33,7 +33,6 @@ public class DeleteQuizCommandHandler {
 
         quizRepository.delete(quiz);
 
-        // Publish domain event after successful deletion
         eventPublisher.publishEvent(new QuizDeletedEvent(quizId, instructorId));
     }
 }

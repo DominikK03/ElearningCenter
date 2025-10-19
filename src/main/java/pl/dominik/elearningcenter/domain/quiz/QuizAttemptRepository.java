@@ -1,5 +1,6 @@
 package pl.dominik.elearningcenter.domain.quiz;
 
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import pl.dominik.elearningcenter.domain.quiz.exception.QuizAttemptNotFoundException;
 
 import java.util.List;
