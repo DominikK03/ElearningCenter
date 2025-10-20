@@ -2,26 +2,28 @@ package pl.dominik.elearningcenter.interfaces.rest.course;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import pl.dominik.elearningcenter.application.course.command.CreateCourseUseCase;
-import pl.dominik.elearningcenter.application.course.command.UpdateCourseUseCase;
-import pl.dominik.elearningcenter.application.course.command.DeleteCourseUseCase;
-import pl.dominik.elearningcenter.application.course.command.PublishCourseUseCase;
-import pl.dominik.elearningcenter.application.course.command.UnpublishCourseUseCase;
-import pl.dominik.elearningcenter.application.course.query.GetCourseDetailsUseCase;
-import pl.dominik.elearningcenter.application.course.query.GetAllCoursesUseCase;
-import pl.dominik.elearningcenter.application.course.query.GetPublishedCourseUseCase;
-import pl.dominik.elearningcenter.application.course.query.GetCoursesByInstructorUseCase;
+import pl.dominik.elearningcenter.application.course.command.CreateCourseCommandHandler;
+import pl.dominik.elearningcenter.application.course.command.UpdateCourseCommandHandler;
+import pl.dominik.elearningcenter.application.course.command.DeleteCourseCommandHandler;
+import pl.dominik.elearningcenter.application.course.command.PublishCourseCommandHandler;
+import pl.dominik.elearningcenter.application.course.command.UnpublishCourseCommandHandler;
+import pl.dominik.elearningcenter.application.course.query.GetCourseDetailsQueryHandler;
+import pl.dominik.elearningcenter.application.course.query.GetAllCoursesQueryHandler;
+import pl.dominik.elearningcenter.application.course.query.GetPublishedCourseQueryHandler;
+import pl.dominik.elearningcenter.application.course.query.GetCoursesByInstructorQueryHandler;
 import pl.dominik.elearningcenter.application.course.dto.PagedCoursesDTO;
 import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
-import pl.dominik.elearningcenter.application.course.input.CreateCourseInput;
-import pl.dominik.elearningcenter.application.course.input.UpdateCourseInput;
-import pl.dominik.elearningcenter.application.course.input.DeleteCourseInput;
-import pl.dominik.elearningcenter.application.course.input.UnpublishCourseInput;
-import pl.dominik.elearningcenter.application.course.input.GetAllCoursesInput;
-import pl.dominik.elearningcenter.application.course.input.GetPublishedCoursesInput;
-import pl.dominik.elearningcenter.application.course.input.GetCoursesByInstructorInput;
+import pl.dominik.elearningcenter.application.course.command.CreateCourseCommand;
+import pl.dominik.elearningcenter.application.course.command.UpdateCourseCommand;
+import pl.dominik.elearningcenter.application.course.command.DeleteCourseCommand;
+import pl.dominik.elearningcenter.application.course.command.PublishCourseCommand;
+import pl.dominik.elearningcenter.application.course.command.UnpublishCourseCommand;
+import pl.dominik.elearningcenter.application.course.query.GetAllCoursesQuery;
+import pl.dominik.elearningcenter.application.course.query.GetPublishedCoursesQuery;
+import pl.dominik.elearningcenter.application.course.query.GetCoursesByInstructorQuery;
 import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.request.CreateCourseRequest;
@@ -33,44 +35,45 @@ import pl.dominik.elearningcenter.interfaces.rest.course.response.PublishCourseR
 @RestController
 @RequestMapping("/api/courses")
 public class CourseController {
-    private final CreateCourseUseCase createCourseUseCase;
-    private final UpdateCourseUseCase updateCourseUseCase;
-    private final DeleteCourseUseCase deleteCourseUseCase;
-    private final PublishCourseUseCase publishCourseUseCase;
-    private final UnpublishCourseUseCase unpublishCourseUseCase;
-    private final GetCourseDetailsUseCase getCourseDetailsUseCase;
-    private final GetAllCoursesUseCase getAllCoursesUseCase;
-    private final GetPublishedCourseUseCase getPublishedCourseUseCase;
-    private final GetCoursesByInstructorUseCase getCoursesByInstructorUseCase;
+    private final CreateCourseCommandHandler createCourseCommandHandler;
+    private final UpdateCourseCommandHandler updateCourseCommandHandler;
+    private final DeleteCourseCommandHandler deleteCourseCommandHandler;
+    private final PublishCourseCommandHandler publishCourseCommandHandler;
+    private final UnpublishCourseCommandHandler unpublishCourseCommandHandler;
+    private final GetCourseDetailsQueryHandler getCourseDetailsQueryHandler;
+    private final GetAllCoursesQueryHandler getAllCoursesQueryHandler;
+    private final GetPublishedCourseQueryHandler getPublishedCourseQueryHandler;
+    private final GetCoursesByInstructorQueryHandler getCoursesByInstructorQueryHandler;
 
     public CourseController(
-            CreateCourseUseCase createCourseUseCase,
-            UpdateCourseUseCase updateCourseUseCase,
-            DeleteCourseUseCase deleteCourseUseCase,
-            PublishCourseUseCase publishCourseUseCase,
-            UnpublishCourseUseCase unpublishCourseUseCase,
-            GetCourseDetailsUseCase getCourseDetailsUseCase,
-            GetAllCoursesUseCase getAllCoursesUseCase,
-            GetPublishedCourseUseCase getPublishedCourseUseCase,
-            GetCoursesByInstructorUseCase getCoursesByInstructorUseCase
+            CreateCourseCommandHandler createCourseCommandHandler,
+            UpdateCourseCommandHandler updateCourseCommandHandler,
+            DeleteCourseCommandHandler deleteCourseCommandHandler,
+            PublishCourseCommandHandler publishCourseCommandHandler,
+            UnpublishCourseCommandHandler unpublishCourseCommandHandler,
+            GetCourseDetailsQueryHandler getCourseDetailsQueryHandler,
+            GetAllCoursesQueryHandler getAllCoursesQueryHandler,
+            GetPublishedCourseQueryHandler getPublishedCourseQueryHandler,
+            GetCoursesByInstructorQueryHandler getCoursesByInstructorQueryHandler
     ) {
-        this.createCourseUseCase = createCourseUseCase;
-        this.updateCourseUseCase = updateCourseUseCase;
-        this.deleteCourseUseCase = deleteCourseUseCase;
-        this.publishCourseUseCase = publishCourseUseCase;
-        this.unpublishCourseUseCase = unpublishCourseUseCase;
-        this.getCourseDetailsUseCase = getCourseDetailsUseCase;
-        this.getAllCoursesUseCase = getAllCoursesUseCase;
-        this.getPublishedCourseUseCase = getPublishedCourseUseCase;
-        this.getCoursesByInstructorUseCase = getCoursesByInstructorUseCase;
+        this.createCourseCommandHandler = createCourseCommandHandler;
+        this.updateCourseCommandHandler = updateCourseCommandHandler;
+        this.deleteCourseCommandHandler = deleteCourseCommandHandler;
+        this.publishCourseCommandHandler = publishCourseCommandHandler;
+        this.unpublishCourseCommandHandler = unpublishCourseCommandHandler;
+        this.getCourseDetailsQueryHandler = getCourseDetailsQueryHandler;
+        this.getAllCoursesQueryHandler = getAllCoursesQueryHandler;
+        this.getPublishedCourseQueryHandler = getPublishedCourseQueryHandler;
+        this.getCoursesByInstructorQueryHandler = getCoursesByInstructorQueryHandler;
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<AckResponse> createCourse(
             @RequestBody CreateCourseRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        CreateCourseInput command = new CreateCourseInput(
+        CreateCourseCommand command = new CreateCourseCommand(
                 request.title(),
                 request.description(),
                 request.price(),
@@ -80,17 +83,18 @@ public class CourseController {
                 request.level()
         );
 
-        Long courseId = createCourseUseCase.execute(command);
+        Long courseId = createCourseCommandHandler.handle(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(AckResponse.created(courseId, "Course"));
     }
 
     @PutMapping("/{id}/update")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<AckResponse> updateCourse(
             @PathVariable Long id,
             @RequestBody UpdateCourseRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UpdateCourseInput command = new UpdateCourseInput(
+        UpdateCourseCommand command = new UpdateCourseCommand(
                 id,
                 request.title(),
                 request.description(),
@@ -101,49 +105,53 @@ public class CourseController {
                 userDetails.getUserId()
         );
 
-        updateCourseUseCase.execute(command);
+        updateCourseCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Course updated successfully"));
     }
 
     @PostMapping("/{id}/publish")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<PublishCourseResponse> publishCourse(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        CourseDTO courseDTO = publishCourseUseCase.execute(id, userDetails.getUserId());
+        PublishCourseCommand command = new PublishCourseCommand(id, userDetails.getUserId());
+        CourseDTO courseDTO = publishCourseCommandHandler.handle(command);
         PublishCourseResponse response = PublishCourseResponse.from(courseDTO);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{id}/unpublish")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<AckResponse> unpublishCourse(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
-        UnpublishCourseInput command = new UnpublishCourseInput(id, currentUser.getUserId());
-        unpublishCourseUseCase.execute(command);
+        UnpublishCourseCommand command = new UnpublishCourseCommand(id, currentUser.getUserId());
+        unpublishCourseCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Course unpublished successfully"));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CourseResponse> getCourseDetails(@PathVariable Long id) {
-        CourseDTO courseDTO = getCourseDetailsUseCase.execute(id);
-        CourseResponse response = CourseResponse.from(courseDTO);
-
-        return ResponseEntity.ok(response);
+        return getCourseDetailsQueryHandler.handle(id)
+                .map(CourseResponse::from)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<AckResponse> deleteCourse(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        DeleteCourseInput command = new DeleteCourseInput(
+        DeleteCourseCommand command = new DeleteCourseCommand(
                 id,
                 userDetails.getUserId()
         );
 
-        deleteCourseUseCase.execute(command);
+        deleteCourseCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Course deleted successfully"));
     }
 
@@ -152,8 +160,8 @@ public class CourseController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        GetAllCoursesInput command = new GetAllCoursesInput(page, size);
-        PagedCoursesDTO pagedCourses = getAllCoursesUseCase.execute(command);
+        GetAllCoursesQuery command = new GetAllCoursesQuery(page, size);
+        PagedCoursesDTO pagedCourses = getAllCoursesQueryHandler.handle(command);
         PagedCoursesResponse response = PagedCoursesResponse.from(pagedCourses);
         return ResponseEntity.ok(response);
     }
@@ -163,8 +171,8 @@ public class CourseController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ){
-        GetPublishedCoursesInput commmand = new GetPublishedCoursesInput(page, size);
-        PagedCoursesDTO dto = getPublishedCourseUseCase.execute(commmand);
+        GetPublishedCoursesQuery commmand = new GetPublishedCoursesQuery(page, size);
+        PagedCoursesDTO dto = getPublishedCourseQueryHandler.handle(commmand);
         return ResponseEntity.ok(PagedCoursesResponse.from(dto));
     }
 
@@ -175,12 +183,12 @@ public class CourseController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        GetCoursesByInstructorInput command = new GetCoursesByInstructorInput(
+        GetCoursesByInstructorQuery command = new GetCoursesByInstructorQuery(
                 instructorId,
                 page,
                 size
         );
-        PagedCoursesDTO dto = getCoursesByInstructorUseCase.execute(command);
+        PagedCoursesDTO dto = getCoursesByInstructorQueryHandler.handle(command);
         return ResponseEntity.ok(PagedCoursesResponse.from(dto));
     }
 

@@ -2,14 +2,15 @@ package pl.dominik.elearningcenter.interfaces.rest.course;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import pl.dominik.elearningcenter.application.course.command.AddLessonUseCase;
-import pl.dominik.elearningcenter.application.course.command.DeleteLessonUseCase;
-import pl.dominik.elearningcenter.application.course.command.UpdateLessonUseCase;
-import pl.dominik.elearningcenter.application.course.input.AddLessonInput;
-import pl.dominik.elearningcenter.application.course.input.DeleteLessonInput;
-import pl.dominik.elearningcenter.application.course.input.UpdateLessonInput;
+import pl.dominik.elearningcenter.application.course.command.AddLessonCommandHandler;
+import pl.dominik.elearningcenter.application.course.command.DeleteLessonCommandHandler;
+import pl.dominik.elearningcenter.application.course.command.UpdateLessonCommandHandler;
+import pl.dominik.elearningcenter.application.course.command.AddLessonCommand;
+import pl.dominik.elearningcenter.application.course.command.DeleteLessonCommand;
+import pl.dominik.elearningcenter.application.course.command.UpdateLessonCommand;
 import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.request.AddLessonRequest;
@@ -18,28 +19,29 @@ import pl.dominik.elearningcenter.interfaces.rest.course.request.UpdateLessonReq
 @RestController
 @RequestMapping("/api/courses/{courseId}/sections/{sectionId}/lessons")
 public class LessonController {
-    private final AddLessonUseCase addLessonUseCase;
-    private final UpdateLessonUseCase updateLessonUseCase;
-    private final DeleteLessonUseCase deleteLessonUseCase;
+    private final AddLessonCommandHandler addLessonCommandHandler;
+    private final UpdateLessonCommandHandler updateLessonCommandHandler;
+    private final DeleteLessonCommandHandler deleteLessonCommandHandler;
 
     public LessonController(
-            AddLessonUseCase addLessonUseCase,
-            UpdateLessonUseCase updateLessonUseCase,
-            DeleteLessonUseCase deleteLessonUseCase
+            AddLessonCommandHandler addLessonCommandHandler,
+            UpdateLessonCommandHandler updateLessonCommandHandler,
+            DeleteLessonCommandHandler deleteLessonCommandHandler
     ) {
-        this.addLessonUseCase = addLessonUseCase;
-        this.updateLessonUseCase = updateLessonUseCase;
-        this.deleteLessonUseCase = deleteLessonUseCase;
+        this.addLessonCommandHandler = addLessonCommandHandler;
+        this.updateLessonCommandHandler = updateLessonCommandHandler;
+        this.deleteLessonCommandHandler = deleteLessonCommandHandler;
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<AckResponse> addLesson(
             @PathVariable Long courseId,
             @PathVariable Long sectionId,
             @RequestBody AddLessonRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        AddLessonInput command = new AddLessonInput(
+        AddLessonCommand command = new AddLessonCommand(
                 courseId,
                 sectionId,
                 request.title(),
@@ -47,11 +49,12 @@ public class LessonController {
                 request.orderIndex(),
                 userDetails.getUserId()
         );
-        Long lessonId = addLessonUseCase.execute(command);
+        Long lessonId = addLessonCommandHandler.handle(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(AckResponse.created(lessonId, "Lesson"));
     }
 
     @PutMapping("/{lessonId}")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<AckResponse> updateLesson(
             @PathVariable Long courseId,
             @PathVariable Long sectionId,
@@ -59,7 +62,7 @@ public class LessonController {
             @RequestBody UpdateLessonRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UpdateLessonInput command = new UpdateLessonInput(
+        UpdateLessonCommand command = new UpdateLessonCommand(
                 courseId,
                 sectionId,
                 lessonId,
@@ -69,24 +72,25 @@ public class LessonController {
                 userDetails.getUserId()
         );
 
-        updateLessonUseCase.execute(command);
+        updateLessonCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.updated("Lesson"));
     }
 
     @DeleteMapping("/{lessonId}")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<AckResponse> deleteLesson(
             @PathVariable Long courseId,
             @PathVariable Long sectionId,
             @PathVariable Long lessonId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        DeleteLessonInput command = new DeleteLessonInput(
+        DeleteLessonCommand command = new DeleteLessonCommand(
                 courseId,
                 sectionId,
                 lessonId,
                 userDetails.getUserId()
         );
-        deleteLessonUseCase.execute(command);
+        deleteLessonCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Lesson deleted successfully"));
     }
 }
