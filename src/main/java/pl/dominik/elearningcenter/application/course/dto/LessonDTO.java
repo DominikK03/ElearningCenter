@@ -1,11 +1,12 @@
 package pl.dominik.elearningcenter.application.course.dto;
 
-import pl.dominik.elearningcenter.domain.course.Lesson;
-import pl.dominik.elearningcenter.domain.course.Material;
-import pl.dominik.elearningcenter.domain.course.Section;
-
 import java.util.List;
 
+/**
+ * Data Transfer Object for Lesson.
+ * Pure data structure without any mapping logic.
+ * Mapping is handled by LessonMapper component.
+ */
 public record LessonDTO(
         Long id,
         String title,
@@ -15,17 +16,4 @@ public record LessonDTO(
         Integer orderIndex,
         List<MaterialDTO> materials
 ) {
-    public static LessonDTO from(Lesson lesson){
-        return new LessonDTO(
-                lesson.getId(),
-                lesson.getTitle(),
-                lesson.getContent(),
-                lesson.getVideoUrl(),
-                lesson.getDurationMinutes(),
-                lesson.getOrderIndex(),
-                lesson.getMaterials().stream()
-                        .map(MaterialDTO::from)
-                        .toList()
-        );
-    }
 }

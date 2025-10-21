@@ -63,4 +63,9 @@ public class CourseRepositoryAdapter implements CourseRepository {
     public boolean existsById(Long id) {
         return jpaRepository.existsById(id);
     }
+
+    @Override
+    public Optional<Course> findByIdAndInstructorId(Long id, Long instructorId) {
+        return jpaRepository.findByIdAndInstructorId(id, instructorId);
+    }
 }

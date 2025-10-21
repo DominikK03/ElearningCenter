@@ -3,6 +3,7 @@ package pl.dominik.elearningcenter.domain.course;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import pl.dominik.elearningcenter.domain.course.exception.CourseNotFoundException;
+import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +27,20 @@ public interface CourseRepository {
 
     boolean existsById(Long id);
 
+    Optional<Course> findByIdAndInstructorId(Long id, Long instructorId);
+
     default Course findByIdOrThrow(Long courseId){
         return findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Course not found: " + courseId));
+    }
+
+    default Course findByIdAndInstructorIdOrThrow(Long courseId, Long instructorId) {
+        return findByIdAndInstructorId(courseId, instructorId)
+                .orElseThrow(() -> {
+                    if (!existsById(courseId)) {
+                        return new CourseNotFoundException("Course not found: " + courseId);
+                    }
+                    return new DomainException("Only course owner can perform this action");
+                });
     }
 }

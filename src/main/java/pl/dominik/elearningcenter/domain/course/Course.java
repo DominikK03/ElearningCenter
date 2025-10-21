@@ -74,6 +74,18 @@ public class Course extends AggregateRoot<Long> {
         return new Course(title, description, price, category, level, instructorId);
     }
 
+    // Convenience factory method for tests
+    public static Course create(String title, String description, double priceAmount, String priceCurrency,  Long instructorId, String category, CourseLevel level){
+        return new Course(
+                new CourseTitle(title),
+                new CourseDescription(description),
+                Money.of(java.math.BigDecimal.valueOf(priceAmount), priceCurrency),
+                category,
+                level,
+                instructorId
+        );
+    }
+
     public void updateTitle(CourseTitle newTitle){
         if (newTitle == null){
             throw new IllegalArgumentException("Title cannot be null");
