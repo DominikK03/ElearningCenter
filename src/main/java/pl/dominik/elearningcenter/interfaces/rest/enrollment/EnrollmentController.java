@@ -4,12 +4,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import pl.dominik.elearningcenter.application.enrollment.command.EnrollStudentUseCase;
-import pl.dominik.elearningcenter.application.enrollment.command.MarkLessonAsCompletedUseCase;
-import pl.dominik.elearningcenter.application.enrollment.command.UnenrollStudentUseCase;
-import pl.dominik.elearningcenter.application.enrollment.input.*;
-import pl.dominik.elearningcenter.application.enrollment.query.GetStudentEnrollmentsUseCase;
-import pl.dominik.elearningcenter.application.enrollment.query.GetCourseEnrollmentsUseCase;
+import pl.dominik.elearningcenter.application.enrollment.command.EnrollStudentCommand;
+import pl.dominik.elearningcenter.application.enrollment.command.EnrollStudentCommandHandler;
+import pl.dominik.elearningcenter.application.enrollment.command.MarkLessonAsCompletedCommand;
+import pl.dominik.elearningcenter.application.enrollment.command.MarkLessonAsCompletedCommandHandler;
+import pl.dominik.elearningcenter.application.enrollment.command.UnenrollStudentCommand;
+import pl.dominik.elearningcenter.application.enrollment.command.UnenrollStudentCommandHandler;
+import pl.dominik.elearningcenter.application.enrollment.query.GetCourseEnrollmentsQuery;
+import pl.dominik.elearningcenter.application.enrollment.query.GetCourseEnrollmentsQueryHandler;
+import pl.dominik.elearningcenter.application.enrollment.query.GetStudentEnrollmentsQuery;
+import pl.dominik.elearningcenter.application.enrollment.query.GetStudentEnrollmentsQueryHandler;
 import pl.dominik.elearningcenter.application.enrollment.dto.EnrollmentDTO;
 import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
@@ -22,37 +26,38 @@ import java.util.List;
 @RequestMapping("/api/enrollments")
 public class EnrollmentController {
 
-    private final EnrollStudentUseCase enrollStudentUseCase;
-    private final GetStudentEnrollmentsUseCase getStudentEnrollmentsUseCase;
-    private final GetCourseEnrollmentsUseCase getCourseEnrollmentsUseCase;
-    private final UnenrollStudentUseCase unenrollStudentUseCase;
-    private final MarkLessonAsCompletedUseCase markLessonAsCompletedUseCase;
+    private final EnrollStudentCommandHandler enrollStudentCommandHandler;
+    private final GetStudentEnrollmentsQueryHandler getStudentEnrollmentsQueryHandler;
+    private final GetCourseEnrollmentsQueryHandler getCourseEnrollmentsQueryHandler;
+    private final UnenrollStudentCommandHandler unenrollStudentCommandHandler;
+    private final MarkLessonAsCompletedCommandHandler markLessonAsCompletedCommandHandler;
 
     public EnrollmentController(
-            EnrollStudentUseCase enrollStudentUseCase,
-            GetStudentEnrollmentsUseCase getStudentEnrollmentsUseCase,
-            GetCourseEnrollmentsUseCase getCourseEnrollmentsUseCase,
-            UnenrollStudentUseCase unenrollStudentUseCase,
-            MarkLessonAsCompletedUseCase markLessonAsCompletedUseCase
+            EnrollStudentCommandHandler enrollStudentCommandHandler,
+            GetStudentEnrollmentsQueryHandler getStudentEnrollmentsQueryHandler,
+            GetCourseEnrollmentsQueryHandler getCourseEnrollmentsQueryHandler,
+            UnenrollStudentCommandHandler unenrollStudentCommandHandler,
+            MarkLessonAsCompletedCommandHandler markLessonAsCompletedCommandHandler
     ) {
-        this.enrollStudentUseCase = enrollStudentUseCase;
-        this.getStudentEnrollmentsUseCase = getStudentEnrollmentsUseCase;
-        this.getCourseEnrollmentsUseCase = getCourseEnrollmentsUseCase;
-        this.unenrollStudentUseCase = unenrollStudentUseCase;
-        this.markLessonAsCompletedUseCase = markLessonAsCompletedUseCase;
+        this.enrollStudentCommandHandler = enrollStudentCommandHandler;
+        this.getStudentEnrollmentsQueryHandler = getStudentEnrollmentsQueryHandler;
+        this.getCourseEnrollmentsQueryHandler = getCourseEnrollmentsQueryHandler;
+        this.unenrollStudentCommandHandler = unenrollStudentCommandHandler;
+        this.markLessonAsCompletedCommandHandler = markLessonAsCompletedCommandHandler;
     }
 
     @PostMapping
-    public ResponseEntity<EnrollmentResponse> enrollStudent(@RequestBody EnrollStudentRequest request){
-        EnrollStudentInput command = new EnrollStudentInput(request.studentId(), request.courseId());
-        EnrollmentDTO enrollmentDTO = enrollStudentUseCase.execute(command);
+    public ResponseEntity<EnrollmentResponse> enrollStudent(@RequestBody EnrollStudentRequest request) {
+        EnrollStudentCommand command = new EnrollStudentCommand(request.studentId(), request.courseId());
+        EnrollmentDTO enrollmentDTO = enrollStudentCommandHandler.handle(command);
         EnrollmentResponse response = EnrollmentResponse.from(enrollmentDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/student/{studentId}")
-    public ResponseEntity<List<EnrollmentResponse>> getStudentEnrollments(@PathVariable Long studentId){
-        List<EnrollmentDTO> enrollmentDTOs = getStudentEnrollmentsUseCase.execute(studentId);
+    public ResponseEntity<List<EnrollmentResponse>> getStudentEnrollments(@PathVariable Long studentId) {
+        GetStudentEnrollmentsQuery query = new GetStudentEnrollmentsQuery(studentId);
+        List<EnrollmentDTO> enrollmentDTOs = getStudentEnrollmentsQueryHandler.handle(query);
         List<EnrollmentResponse> responses = enrollmentDTOs.stream()
                 .map(EnrollmentResponse::from)
                 .toList();
@@ -64,8 +69,8 @@ public class EnrollmentController {
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
-        UnenrollStudentInput command = new UnenrollStudentInput(id, currentUser.getUserId());
-        unenrollStudentUseCase.execute(command);
+        UnenrollStudentCommand command = new UnenrollStudentCommand(id, currentUser.getUserId());
+        unenrollStudentCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Unenrolled successfully"));
     }
 
@@ -74,8 +79,8 @@ public class EnrollmentController {
             @PathVariable Long courseId,
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
-        GetCourseEnrollmentsInput command = new GetCourseEnrollmentsInput(courseId, currentUser.getUserId());
-        List<EnrollmentDTO> enrollmentDTOs = getCourseEnrollmentsUseCase.execute(command);
+        GetCourseEnrollmentsQuery query = new GetCourseEnrollmentsQuery(courseId, currentUser.getUserId());
+        List<EnrollmentDTO> enrollmentDTOs = getCourseEnrollmentsQueryHandler.handle(query);
         List<EnrollmentResponse> responses = enrollmentDTOs.stream()
                 .map(EnrollmentResponse::from)
                 .toList();
@@ -89,13 +94,13 @@ public class EnrollmentController {
             @PathVariable Long lessonId,
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
-        MarkLessonAsCompletedInput command = new MarkLessonAsCompletedInput(
+        MarkLessonAsCompletedCommand command = new MarkLessonAsCompletedCommand(
                 enrollmentId,
                 sectionId,
                 lessonId,
                 currentUser.getUserId()
         );
-        markLessonAsCompletedUseCase.execute(command);
+        markLessonAsCompletedCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Lesson marked as completed"));
     }
 }

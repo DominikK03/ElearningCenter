@@ -1,7 +1,7 @@
-package pl.dominik.elearningcenter.application.enrollment.input;
+package pl.dominik.elearningcenter.application.enrollment.query;
 
-public record GetCourseEnrollmentsInput(Long courseId, Long instructorId) {
-    public GetCourseEnrollmentsInput {
+public record GetCourseEnrollmentsQuery(Long courseId, Long instructorId) {
+    public GetCourseEnrollmentsQuery {
         if (courseId == null) {
             throw new IllegalArgumentException("Course ID cannot be null");
         }
