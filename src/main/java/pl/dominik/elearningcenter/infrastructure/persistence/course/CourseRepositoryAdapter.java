@@ -14,7 +14,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
 
     private final CourseJpaRepository jpaRepository;
 
-    private CourseRepositoryAdapter(CourseJpaRepository jpaRepository){
+    public CourseRepositoryAdapter(CourseJpaRepository jpaRepository){
         this.jpaRepository = jpaRepository;
     }
 
