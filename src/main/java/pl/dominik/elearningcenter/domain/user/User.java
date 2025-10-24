@@ -61,11 +61,11 @@ public class User extends AggregateRoot<Long> {
         this.enabled = false;
     }
 
-    public void changePassword(String oldPasswordRaw, String newPasswordRaw) {
-        if(!this.password.matches(oldPasswordRaw)){
+    public void changePassword(Password newHashedPassword, boolean oldPasswordMatches) {
+        if (!oldPasswordMatches) {
             throw new DomainException("Invalid old password");
         }
-        this.password = Password.fromRaw(newPasswordRaw);
+        this.password = newHashedPassword;
     }
 
     public void updateEmail(Email newEmail){

@@ -7,16 +7,16 @@ import pl.dominik.elearningcenter.domain.user.UserRepository;
 import pl.dominik.elearningcenter.domain.user.exception.UserNotFoundException;
 
 @Service
-public class DisableUserUseCase {
+public class DisableUserCommandHandler {
     private final UserRepository userRepository;
 
-    public DisableUserUseCase(UserRepository userRepository){
+    public DisableUserCommandHandler(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Transactional
-    public void execute(Long userId){
-        User user = userRepository.findById(userId)
+    public void handle(DisableUserCommand command) {
+        User user = userRepository.findById(command.userId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         user.disable();
     }

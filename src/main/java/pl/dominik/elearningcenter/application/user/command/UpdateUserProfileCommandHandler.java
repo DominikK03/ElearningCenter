@@ -2,7 +2,6 @@ package pl.dominik.elearningcenter.application.user.command;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dominik.elearningcenter.application.user.input.UpdateUserProfileInput;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Email;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Username;
@@ -11,15 +10,15 @@ import pl.dominik.elearningcenter.domain.user.UserRepository;
 import pl.dominik.elearningcenter.domain.user.exception.UserNotFoundException;
 
 @Service
-public class UpdateUserProfileUseCase {
+public class UpdateUserProfileCommandHandler {
     private final UserRepository userRepository;
 
-    public UpdateUserProfileUseCase(UserRepository userRepository) {
+    public UpdateUserProfileCommandHandler(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Transactional
-    public void execute(UpdateUserProfileInput command) {
+    public void handle(UpdateUserProfileCommand command) {
         User user = userRepository.findById(command.userId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         if (command.newEmail() != null) {

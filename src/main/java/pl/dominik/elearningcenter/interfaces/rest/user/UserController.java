@@ -15,12 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import pl.dominik.elearningcenter.application.user.command.*;
 import pl.dominik.elearningcenter.application.user.query.*;
 import pl.dominik.elearningcenter.application.user.dto.PagedUsersDTO;
-import pl.dominik.elearningcenter.application.user.input.*;
 import pl.dominik.elearningcenter.application.user.dto.UserDTO;
+import pl.dominik.elearningcenter.application.user.mapper.UserMapper;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
-import pl.dominik.elearningcenter.domain.shared.valueobject.Email;
 import pl.dominik.elearningcenter.domain.user.User;
-import pl.dominik.elearningcenter.domain.user.UserRepository;
 import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
 import pl.dominik.elearningcenter.interfaces.rest.user.request.ChangePasswordRequest;
@@ -33,62 +31,58 @@ import pl.dominik.elearningcenter.interfaces.rest.user.response.UserResponse;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    private final RegisterUserUseCase registerUserUseCase;
-    private final AuthenticateUserUseCase authenticateUserUseCase;
-    private final GetUserByIdUseCase getUserByIdUseCase;
-    private final GetAllUsersUseCase getAllUsersUseCase;
-    private final UpdateUserProfileUseCase updateUserProfileUseCase;
-    private final ChangePasswordUseCase changePasswordUseCase;
-    private final EnableUserUseCase enableUserUseCase;
-    private final DisableUserUseCase disableUserUseCase;
-    private final UserRepository userRepository;
+    private final RegisterUserCommandHandler registerUserCommandHandler;
+    private final AuthenticateUserQueryHandler authenticateUserQueryHandler;
+    private final GetUserByIdQueryHandler getUserByIdQueryHandler;
+    private final GetAllUsersQueryHandler getAllUsersQueryHandler;
+    private final UpdateUserProfileCommandHandler updateUserProfileCommandHandler;
+    private final ChangePasswordCommandHandler changePasswordCommandHandler;
+    private final EnableUserCommandHandler enableUserCommandHandler;
+    private final DisableUserCommandHandler disableUserCommandHandler;
+    private final UserMapper userMapper;
 
     public UserController(
-            RegisterUserUseCase registerUserUseCase,
-            AuthenticateUserUseCase authenticateUserUseCase,
-            GetUserByIdUseCase getUserByIdUseCase,
-            GetAllUsersUseCase getAllUsersUseCase,
-            UpdateUserProfileUseCase updateUserProfileUseCase,
-            ChangePasswordUseCase changePasswordUseCase,
-            EnableUserUseCase enableUserUseCase,
-            DisableUserUseCase disableUserUseCase,
-            UserRepository userRepository
+            RegisterUserCommandHandler registerUserCommandHandler,
+            AuthenticateUserQueryHandler authenticateUserQueryHandler,
+            GetUserByIdQueryHandler getUserByIdQueryHandler,
+            GetAllUsersQueryHandler getAllUsersQueryHandler,
+            UpdateUserProfileCommandHandler updateUserProfileCommandHandler,
+            ChangePasswordCommandHandler changePasswordCommandHandler,
+            EnableUserCommandHandler enableUserCommandHandler,
+            DisableUserCommandHandler disableUserCommandHandler,
+            UserMapper userMapper
     ) {
-        this.registerUserUseCase = registerUserUseCase;
-        this.authenticateUserUseCase = authenticateUserUseCase;
-        this.getUserByIdUseCase = getUserByIdUseCase;
-        this.getAllUsersUseCase = getAllUsersUseCase;
-        this.updateUserProfileUseCase = updateUserProfileUseCase;
-        this.changePasswordUseCase = changePasswordUseCase;
-        this.enableUserUseCase = enableUserUseCase;
-        this.disableUserUseCase = disableUserUseCase;
-        this.userRepository = userRepository;
+        this.registerUserCommandHandler = registerUserCommandHandler;
+        this.authenticateUserQueryHandler = authenticateUserQueryHandler;
+        this.getUserByIdQueryHandler = getUserByIdQueryHandler;
+        this.getAllUsersQueryHandler = getAllUsersQueryHandler;
+        this.updateUserProfileCommandHandler = updateUserProfileCommandHandler;
+        this.changePasswordCommandHandler = changePasswordCommandHandler;
+        this.enableUserCommandHandler = enableUserCommandHandler;
+        this.disableUserCommandHandler = disableUserCommandHandler;
+        this.userMapper = userMapper;
     }
 
     @PostMapping("/register")
     public ResponseEntity<AckResponse> register(@Valid @RequestBody RegisterUserRequest request) {
-        RegisterUserInput command = new RegisterUserInput(
+        RegisterUserCommand command = new RegisterUserCommand(
                 request.username(),
                 request.email(),
                 request.password(),
                 request.role()
         );
 
-        Long userId = registerUserUseCase.execute(command);
+        Long userId = registerUserCommandHandler.handle(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(AckResponse.created(userId, "User"));
     }
 
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
-        AuthenticateUserInput command = new AuthenticateUserInput(
+        AuthenticateUserQuery query = new AuthenticateUserQuery(
                 request.email(),
                 request.password()
         );
-        UserDTO userDTO = authenticateUserUseCase.execute(command);
-
-        Email email = new Email(userDTO.email());
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new DomainException("User not found"));
+        User user = authenticateUserQueryHandler.handle(query);
 
         CustomUserDetails userDetails = new CustomUserDetails(user);
 
@@ -105,6 +99,7 @@ public class UserController {
         HttpSession session = httpRequest.getSession(true);
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
 
+        UserDTO userDTO = userMapper.toDto(user);
         UserResponse response = UserResponse.from(userDTO);
 
         return ResponseEntity.ok(response);
@@ -125,7 +120,8 @@ public class UserController {
         if (!currentUser.getUserId().equals(id)){
             throw new DomainException("Permission denied. You can only see your own profile");
         }
-        UserDTO userDTO = getUserByIdUseCase.execute(id);
+        GetUserByIdQuery query = new GetUserByIdQuery(id);
+        UserDTO userDTO = getUserByIdQueryHandler.handle(query);
         return ResponseEntity.ok(UserResponse.from(userDTO));
     }
 
@@ -135,8 +131,8 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        GetAllUsersInput command = new GetAllUsersInput(page,size);
-        PagedUsersDTO dto = getAllUsersUseCase.execute(command);
+        GetAllUsersQuery query = new GetAllUsersQuery(page, size);
+        PagedUsersDTO dto = getAllUsersQueryHandler.handle(query);
         return ResponseEntity.ok(PagedUsersResponse.from(dto));
     }
 
@@ -149,12 +145,12 @@ public class UserController {
         if (!currentUser.getUserId().equals(id)){
             throw new DomainException("Permission denied. Cannot update others profile");
         }
-        UpdateUserProfileInput command = new UpdateUserProfileInput(
+        UpdateUserProfileCommand command = new UpdateUserProfileCommand(
                 id,
                 request.email(),
                 request.username()
         );
-        updateUserProfileUseCase.execute(command);
+        updateUserProfileCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.updated("User profile"));
     }
 
@@ -167,26 +163,28 @@ public class UserController {
         if (!currentUser.getUserId().equals(id)){
             throw new DomainException("Permission denied. You can only change your own password");
         }
-        ChangePasswordInput command = new ChangePasswordInput(
+        ChangePasswordCommand command = new ChangePasswordCommand(
                 id,
                 request.oldPassword(),
                 request.newPassword()
         );
-        changePasswordUseCase.execute(command);
+        changePasswordCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Password changed Successfully"));
     }
 
     @PostMapping("/{id}/enable")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AckResponse> enableUser(@PathVariable Long id){
-        enableUserUseCase.execute(id);
+        EnableUserCommand command = new EnableUserCommand(id);
+        enableUserCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("User account enabled"));
     }
 
     @PostMapping("/{id}/disable")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AckResponse> disableUser(@PathVariable Long id) {
-        disableUserUseCase.execute(id);
+        DisableUserCommand command = new DisableUserCommand(id);
+        disableUserCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("User account disabled"));
     }
 }
