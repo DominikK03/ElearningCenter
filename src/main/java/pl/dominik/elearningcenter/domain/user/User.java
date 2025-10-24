@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import pl.dominik.elearningcenter.domain.shared.AggregateRoot;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Email;
+import pl.dominik.elearningcenter.domain.shared.valueobject.Money;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Password;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Username;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -36,6 +38,13 @@ public class User extends AggregateRoot<Long> {
     @Column(nullable = false)
     private boolean enabled = false;
 
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "amount", column = @Column(name = "balance_amount", nullable = false, precision = 10, scale = 2)),
+            @AttributeOverride(name = "currencyCode", column = @Column(name = "balance_currency", nullable = false, length = 3))
+    })
+    private Money balance;
+
     protected User() {
         super();
     }
@@ -47,6 +56,7 @@ public class User extends AggregateRoot<Long> {
         this.role = role;
         this.createdAt = LocalDateTime.now();
         this.enabled = false;
+        this.balance = Money.pln(BigDecimal.ZERO);
     }
 
     public static User register(Username username, Email email, Password rawPassword, UserRole userRole) {
@@ -106,6 +116,38 @@ public class User extends AggregateRoot<Long> {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public Money getBalance() {
+        return balance;
+    }
+
+    public void addBalance(Money amount) {
+        if (amount == null) {
+            throw new IllegalArgumentException("Amount cannot be null");
+        }
+        this.balance = this.balance.add(amount);
+    }
+
+    public void deductBalance(Money amount) {
+        if (amount == null) {
+            throw new IllegalArgumentException("Amount cannot be null");
+        }
+        if (this.balance.getAmount().compareTo(amount.getAmount()) < 0) {
+            throw new DomainException("Insufficient balance");
+        }
+        this.balance = this.balance.subtract(amount);
+    }
+
+    public boolean hasEnoughBalance(Money amount) {
+        if (amount == null) {
+            throw new IllegalArgumentException("Amount cannot be null");
+        }
+        if (!this.balance.getCurrencyCode().equals(amount.getCurrencyCode())) {
+            throw new IllegalArgumentException("Cannot compare balance with different currencies");
+        }
+        return this.balance.getAmount().compareTo(amount.getAmount()) >= 0;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
