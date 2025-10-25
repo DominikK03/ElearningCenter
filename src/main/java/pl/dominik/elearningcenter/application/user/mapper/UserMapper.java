@@ -20,7 +20,9 @@ public class UserMapper {
                 user.getEmail().getValue(),
                 user.getRole(),
                 user.getCreatedAt(),
-                user.isEnabled()
+                user.isEnabled(),
+                user.isEmailVerified(),
+                user.getBalance().getAmount().doubleValue()
         );
     }
 

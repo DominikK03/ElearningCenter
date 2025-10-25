@@ -21,10 +21,7 @@ import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.user.User;
 import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
-import pl.dominik.elearningcenter.interfaces.rest.user.request.ChangePasswordRequest;
-import pl.dominik.elearningcenter.interfaces.rest.user.request.LoginRequest;
-import pl.dominik.elearningcenter.interfaces.rest.user.request.RegisterUserRequest;
-import pl.dominik.elearningcenter.interfaces.rest.user.request.UpdateUserProfileRequest;
+import pl.dominik.elearningcenter.interfaces.rest.user.request.*;
 import pl.dominik.elearningcenter.interfaces.rest.user.response.PagedUsersResponse;
 import pl.dominik.elearningcenter.interfaces.rest.user.response.UserResponse;
 
@@ -39,6 +36,11 @@ public class UserController {
     private final ChangePasswordCommandHandler changePasswordCommandHandler;
     private final EnableUserCommandHandler enableUserCommandHandler;
     private final DisableUserCommandHandler disableUserCommandHandler;
+    private final VerifyEmailCommandHandler verifyEmailCommandHandler;
+    private final ResendVerificationEmailCommandHandler resendVerificationEmailCommandHandler;
+    private final RequestPasswordResetCommandHandler requestPasswordResetCommandHandler;
+    private final ResetPasswordCommandHandler resetPasswordCommandHandler;
+    private final AddBalanceCommandHandler addBalanceCommandHandler;
     private final UserMapper userMapper;
 
     public UserController(
@@ -50,6 +52,11 @@ public class UserController {
             ChangePasswordCommandHandler changePasswordCommandHandler,
             EnableUserCommandHandler enableUserCommandHandler,
             DisableUserCommandHandler disableUserCommandHandler,
+            VerifyEmailCommandHandler verifyEmailCommandHandler,
+            ResendVerificationEmailCommandHandler resendVerificationEmailCommandHandler,
+            RequestPasswordResetCommandHandler requestPasswordResetCommandHandler,
+            ResetPasswordCommandHandler resetPasswordCommandHandler,
+            AddBalanceCommandHandler addBalanceCommandHandler,
             UserMapper userMapper
     ) {
         this.registerUserCommandHandler = registerUserCommandHandler;
@@ -60,6 +67,11 @@ public class UserController {
         this.changePasswordCommandHandler = changePasswordCommandHandler;
         this.enableUserCommandHandler = enableUserCommandHandler;
         this.disableUserCommandHandler = disableUserCommandHandler;
+        this.verifyEmailCommandHandler = verifyEmailCommandHandler;
+        this.resendVerificationEmailCommandHandler = resendVerificationEmailCommandHandler;
+        this.requestPasswordResetCommandHandler = requestPasswordResetCommandHandler;
+        this.resetPasswordCommandHandler = resetPasswordCommandHandler;
+        this.addBalanceCommandHandler = addBalanceCommandHandler;
         this.userMapper = userMapper;
     }
 
@@ -186,5 +198,47 @@ public class UserController {
         DisableUserCommand command = new DisableUserCommand(id);
         disableUserCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("User account disabled"));
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<AckResponse> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        VerifyEmailCommand command = new VerifyEmailCommand(request.token());
+        verifyEmailCommandHandler.handle(command);
+        return ResponseEntity.ok(AckResponse.success("Email verified successfully"));
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<AckResponse> resendVerificationEmail(@Valid @RequestBody ResendVerificationEmailRequest request) {
+        ResendVerificationEmailCommand command = new ResendVerificationEmailCommand(request.email());
+        resendVerificationEmailCommandHandler.handle(command);
+        return ResponseEntity.ok(AckResponse.success("Verification email resent successfully"));
+    }
+
+    @PostMapping("/request-password-reset")
+    public ResponseEntity<AckResponse> requestPasswordReset(@Valid @RequestBody RequestPasswordResetRequest request) {
+        RequestPasswordResetCommand command = new RequestPasswordResetCommand(request.email());
+        requestPasswordResetCommandHandler.handle(command);
+        return ResponseEntity.ok(AckResponse.success("Password reset email sent successfully"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<AckResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        ResetPasswordCommand command = new ResetPasswordCommand(request.token(), request.newPassword());
+        resetPasswordCommandHandler.handle(command);
+        return ResponseEntity.ok(AckResponse.success("Password reset successfully"));
+    }
+
+    @PostMapping("/{id}/balance/add")
+    public ResponseEntity<AckResponse> addBalance(
+            @PathVariable Long id,
+            @Valid @RequestBody AddBalanceRequest request,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+        if (!currentUser.getUserId().equals(id)) {
+            throw new DomainException("Permission denied. You can only add balance to your own account");
+        }
+        AddBalanceCommand command = new AddBalanceCommand(id, request.amount());
+        addBalanceCommandHandler.handle(command);
+        return ResponseEntity.ok(AckResponse.success("Balance added successfully"));
     }
 }

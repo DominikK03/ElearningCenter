@@ -13,6 +13,8 @@ public interface UserRepository {
     Optional<User> findById(Long id);
     Optional<User> findByUsername(Username username);
     Optional<User> findByEmail(Email email);
+    Optional<User> findByVerificationToken(String token);
+    Optional<User> findByPasswordResetToken(String token);
     Page<User> findAll(Pageable pageable);
     boolean existsByUsername(Username username);
     boolean existsByEmail(Email email);

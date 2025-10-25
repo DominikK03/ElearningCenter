@@ -11,7 +11,9 @@ public record UserResponse(
         String email,
         UserRole role,
         LocalDateTime createdAt,
-        boolean enabled
+        boolean enabled,
+        boolean emailVerified,
+        double balance
 ) {
     public static UserResponse from(UserDTO dto) {
         return new UserResponse(
@@ -20,7 +22,9 @@ public record UserResponse(
                 dto.email(),
                 dto.role(),
                 dto.createdAt(),
-                dto.enabled()
+                dto.enabled(),
+                dto.emailVerified(),
+                dto.balance()
         );
     }
 }

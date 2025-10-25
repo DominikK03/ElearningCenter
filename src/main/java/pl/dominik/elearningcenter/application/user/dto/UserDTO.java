@@ -10,6 +10,8 @@ public record UserDTO(
         String email,
         UserRole role,
         LocalDateTime createdAt,
-        boolean enabled
+        boolean enabled,
+        boolean emailVerified,
+        double balance
 ) {
 }
