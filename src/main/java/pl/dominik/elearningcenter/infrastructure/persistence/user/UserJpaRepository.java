@@ -15,6 +15,12 @@ interface UserJpaRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.email.value = :email")
     Optional<User> findByEmail(@Param("email") String email);
 
+    @Query("SELECT u FROM User u WHERE u.verificationToken = :token")
+    Optional<User> findByVerificationToken(@Param("token") String token);
+
+    @Query("SELECT u FROM User u WHERE u.passwordResetToken = :token")
+    Optional<User> findByPasswordResetToken(@Param("token") String token);
+
     @Query("SELECT COUNT(u) > 0 FROM User u where  u.username.value = :username")
     boolean existsByUsername(@Param("username") String username);
 

@@ -16,15 +16,18 @@ import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 public class EnrollStudentCommandHandler {
     private final EnrollmentRepository enrollmentRepository;
     private final CourseRepository courseRepository;
+    private final pl.dominik.elearningcenter.domain.user.UserRepository userRepository;
     private final EnrollmentMapper enrollmentMapper;
 
     public EnrollStudentCommandHandler(
             EnrollmentRepository enrollmentRepository,
             CourseRepository courseRepository,
+            pl.dominik.elearningcenter.domain.user.UserRepository userRepository,
             EnrollmentMapper enrollmentMapper
     ) {
         this.enrollmentRepository = enrollmentRepository;
         this.courseRepository = courseRepository;
+        this.userRepository = userRepository;
         this.enrollmentMapper = enrollmentMapper;
     }
 
@@ -39,6 +42,17 @@ public class EnrollStudentCommandHandler {
 
         if (enrollmentRepository.existsByStudentIdAndCourseId(command.studentId(), command.courseId())) {
             throw new DomainException("Student is already enrolled in this course");
+        }
+
+        if (course.getPrice().getAmount().compareTo(java.math.BigDecimal.ZERO) > 0) {
+            pl.dominik.elearningcenter.domain.user.User student = userRepository.findByIdOrThrow(command.studentId());
+
+            if (!student.hasEnoughBalance(course.getPrice())) {
+                throw new DomainException("Insufficient balance. Course price: " + course.getPrice().getAmount() + " PLN");
+            }
+
+            student.deductBalance(course.getPrice());
+            userRepository.save(student);
         }
 
         Enrollment enrollment = Enrollment.enroll(command.studentId(), command.courseId());

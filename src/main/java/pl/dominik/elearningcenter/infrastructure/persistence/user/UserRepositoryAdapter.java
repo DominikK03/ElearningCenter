@@ -39,6 +39,16 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByVerificationToken(String token) {
+        return jpaRepository.findByVerificationToken(token);
+    }
+
+    @Override
+    public Optional<User> findByPasswordResetToken(String token) {
+        return jpaRepository.findByPasswordResetToken(token);
+    }
+
+    @Override
     public Page<User> findAll(Pageable pageable) {
         return jpaRepository.findAll(pageable);
     }

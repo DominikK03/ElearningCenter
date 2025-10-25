@@ -1,4 +1,4 @@
 package pl.dominik.elearningcenter.application.user.command;
 
-public class VerifyEmailUseCase {
+public record RequestPasswordResetCommand(String email) {
 }
