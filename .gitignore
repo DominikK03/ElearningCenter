@@ -1,19 +1,25 @@
-HELP.md
-claude.md
-PROJECT.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+### Documentation (optional - uncomment if you want to ignore) ###
+# claude.md
+# frontend.md
+
+###################
+# BACKEND (Java/Spring Boot)
+###################
+
+### Backend build artifacts ###
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+!backend/**/src/main/**/target/
+!backend/**/src/test/**/target/
 
 ### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+backend/.apt_generated
+backend/.classpath
+backend/.factorypath
+backend/.project
+backend/.settings
+backend/.springBeans
+backend/.sts4-cache
 
 ### IntelliJ IDEA ###
 .idea
@@ -22,33 +28,54 @@ target/
 *.ipr
 
 ### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+backend/nbproject/private/
+backend/nbbuild/
+backend/dist/
+backend/nbdist/
+backend/.nb-gradle/
+backend/build/
+!backend/**/src/main/**/build/
+!backend/**/src/test/**/build/
 
-### VS Code ###
-.vscode/
+###################
+# FRONTEND (React/Node.js)
+###################
 
-### Environment variables ###
-.env
-.env.local
-.env.*.local
-
-### Application secrets ###
-*.key
-*.p12
-*.jks
+### Node modules ###
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/build/
 
 ### Logs ###
-*.log
-logs/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
 
-### OS ###
+### Editor directories ###
+frontend/.vscode/*
+!frontend/.vscode/extensions.json
+frontend/.idea
+
+### Environment variables ###
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+### OS files ###
 .DS_Store
 Thumbs.db
 *:Zone.Identifier
+
+### Misc ###
+*.log
+logs/
+
+### Secrets ###
+*.key
+*.p12
+*.jks
