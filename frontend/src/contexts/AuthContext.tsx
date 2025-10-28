@@ -17,13 +17,13 @@ interface AuthContextType {
   clearError: () => void;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
+function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<ApiErrorDetails | null>(null);
@@ -35,14 +35,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(true);
       setError(null);
 
-      const response = await userService.getCurrentUser();
+      const apiResponse = await userService.getCurrentUser();
+      const userData = (apiResponse as unknown as { data?: User }).data || apiResponse;
 
-      if (response.data) {
-        setUser(response.data);
+      if (userData && typeof userData === 'object' && 'id' in userData) {
+        setUser(userData as User);
       }
 
       setLoading(false);
     } catch (err) {
+      const error = err as { response?: { status?: number } };
+      if (error.response?.status === 403 || error.response?.status === 401) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       const apiError = handleApiError(err);
       setError(apiError);
       setUser(null);
@@ -55,13 +63,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(true);
       setError(null);
 
-      const response = await userService.login(credentials);
-
-      if (response.data) {
-        setUser(response.data);
-      }
-
-      setLoading(false);
+      await userService.login(credentials);
+      await checkAuth();
     } catch (err) {
       const apiError = handleApiError(err);
       setError(apiError);
@@ -94,10 +97,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       await userService.register(data);
 
-      // Note: After registration, user is NOT automatically logged in
-      // They need to be enabled by admin first
-      // So we don't set the user here
-
       setLoading(false);
     } catch (err) {
       const apiError = handleApiError(err);
@@ -129,3 +128,5 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
+export { AuthContext, AuthProvider };

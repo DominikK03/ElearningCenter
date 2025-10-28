@@ -39,36 +39,6 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError<ApiResponse>) => {
-    if (error.response) {
-      const { status, data } = error.response;
-
-      if (status === 401) {
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
-      }
-
-      if (status === 403) {
-        console.error('Access denied:', data.message);
-      }
-
-      if (status === 404) {
-        console.error('Resource not found:', data.message);
-      }
-
-      if (status === 500) {
-        console.error('Server error:', data.message);
-      }
-
-      return Promise.reject(error);
-    }
-
-    if (error.code === 'ECONNABORTED') {
-      console.error('Request timeout');
-    } else if (!error.response) {
-      console.error('Network error - please check your connection');
-    }
-
     return Promise.reject(error);
   }
 );

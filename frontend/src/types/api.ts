@@ -2,7 +2,7 @@
 // API Response Types
 // ============================================
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = never> {
   status: number;
   message?: string;
   data?: T;
@@ -41,7 +41,7 @@ export interface RegisterRequest {
 }
 
 export interface LoginRequest {
-  username: string;
+  email: string;
   password: string;
 }
 
