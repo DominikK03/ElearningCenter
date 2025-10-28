@@ -1,17 +1,20 @@
 import type {ReactNode} from 'react';
 import {Navigate} from 'react-router-dom';
 import {useAuth} from '../../hooks/useAuth';
+import type {UserRole} from '../../types/api';
 
 interface ProtectedRouteProps {
     children: ReactNode;
     redirectTo?: string;
+    allowedRoles?: UserRole[];
 }
 
 export default function ProtectedRoute({
                                            children,
-                                           redirectTo = '/login'
+                                           redirectTo = '/login',
+                                           allowedRoles
                                        }: ProtectedRouteProps) {
-    const {isAuthenticated, loading} = useAuth();
+    const {isAuthenticated, loading, user} = useAuth();
 
     if (loading) {
         return (
@@ -26,6 +29,10 @@ export default function ProtectedRoute({
 
     if (!isAuthenticated) {
         return <Navigate to={redirectTo} replace/>;
+    }
+
+    if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+        return <Navigate to="/forbidden" replace/>;
     }
 
     return <>{children}</>;

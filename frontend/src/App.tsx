@@ -9,7 +9,9 @@ import ResendVerificationPage from './pages/auth/ResendVerificationPage';
 import RequestPasswordResetPage from './pages/auth/RequestPasswordResetPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
+import AdminPanelPage from './pages/admin/AdminPanelPage';
 import NotFoundPage from './pages/error/NotFoundPage';
+import ForbiddenPage from './pages/error/ForbiddenPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
@@ -32,7 +34,15 @@ function App() {
             </ProtectedRoute>
           } />
 
-          {/* 404 Not Found */}
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminPanelPage />
+            </ProtectedRoute>
+          } />
+
+          {/* Error Pages */}
+          <Route path="/forbidden" element={<ForbiddenPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
