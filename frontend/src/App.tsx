@@ -9,10 +9,12 @@ import ResendVerificationPage from './pages/auth/ResendVerificationPage';
 import RequestPasswordResetPage from './pages/auth/RequestPasswordResetPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
+import ProfilePage from './pages/profile/ProfilePage';
 import AdminPanelPage from './pages/admin/AdminPanelPage';
 import NotFoundPage from './pages/error/NotFoundPage';
 import ForbiddenPage from './pages/error/ForbiddenPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import DashboardLayout from './layouts/DashboardLayout';
 
 function App() {
   return (
@@ -27,19 +29,41 @@ function App() {
           <Route path="/request-password-reset" element={<RequestPasswordResetPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-          {/* Protected Routes */}
-          <Route path="/dashboard" element={
+          <Route element={
             <ProtectedRoute>
-              <DashboardPage />
+              <DashboardLayout />
             </ProtectedRoute>
-          } />
+          }>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={
-            <ProtectedRoute allowedRoles={['ADMIN']}>
-              <AdminPanelPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/courses" element={<div>Browse Courses - Coming Soon</div>} />
+            <Route path="/my-courses" element={<div>My Courses - Coming Soon</div>} />
+
+            <Route path="/my-teaching" element={<div>My Teaching - Coming Soon</div>} />
+            <Route path="/create-course" element={<div>Create Course - Coming Soon</div>} />
+
+            <Route path="/admin" element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminPanelPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <div>User Management - Coming Soon</div>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/courses" element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <div>Courses Management - Coming Soon</div>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/reports" element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <div>Reports - Coming Soon</div>
+              </ProtectedRoute>
+            } />
+          </Route>
 
           {/* Error Pages */}
           <Route path="/forbidden" element={<ForbiddenPage />} />
