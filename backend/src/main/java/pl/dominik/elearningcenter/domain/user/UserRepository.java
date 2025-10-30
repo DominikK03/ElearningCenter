@@ -6,11 +6,13 @@ import pl.dominik.elearningcenter.domain.shared.valueobject.Email;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Username;
 import pl.dominik.elearningcenter.domain.user.exception.UserNotFoundException;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository {
     User save(User user);
     Optional<User> findById(Long id);
+    List<User> findAllById(Iterable<Long> ids);
     Optional<User> findByUsername(Username username);
     Optional<User> findByEmail(Email email);
     Optional<User> findByVerificationToken(String token);

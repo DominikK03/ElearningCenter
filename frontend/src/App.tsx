@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 
 import HomePage from './pages/courses/HomePage';
+import CoursesPage from './pages/courses/CoursesPage';
+import CourseDetailsPage from './pages/courses/CourseDetailsPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import VerifyEmailPage from './pages/auth/VerifyEmailPage';
@@ -22,6 +24,12 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+
+          {/* Public Course Routes */}
+          <Route path="/courses" element={<CoursesPage />} />
+          <Route path="/courses/:id" element={<CourseDetailsPage />} />
+
+          {/* Auth Routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
@@ -29,6 +37,7 @@ function App() {
           <Route path="/request-password-reset" element={<RequestPasswordResetPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
+          {/* Protected Routes */}
           <Route element={
             <ProtectedRoute>
               <DashboardLayout />
@@ -37,7 +46,6 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/profile" element={<ProfilePage />} />
 
-            <Route path="/courses" element={<div>Browse Courses - Coming Soon</div>} />
             <Route path="/my-courses" element={<div>My Courses - Coming Soon</div>} />
 
             <Route path="/my-teaching" element={<div>My Teaching - Coming Soon</div>} />

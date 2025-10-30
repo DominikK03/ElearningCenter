@@ -15,7 +15,15 @@ import java.util.Collections;
 import java.util.List;
 
 @Entity
-@Table(name = "courses")
+@Table(name = "courses", indexes = {
+        @Index(name = "idx_course_published", columnList = "published"),
+        @Index(name = "idx_course_category", columnList = "category"),
+        @Index(name = "idx_course_level", columnList = "level"),
+        @Index(name = "idx_course_instructor", columnList = "instructor_id"),
+        @Index(name = "idx_course_published_category", columnList = "published, category"),
+        @Index(name = "idx_course_published_level", columnList = "published, level"),
+        @Index(name = "idx_course_published_category_level", columnList = "published, category, level")
+})
 public class Course extends AggregateRoot<Long> {
 
     @Embedded
@@ -74,7 +82,6 @@ public class Course extends AggregateRoot<Long> {
         return new Course(title, description, price, category, level, instructorId);
     }
 
-    // Convenience factory method for tests
     public static Course create(String title, String description, double priceAmount, String priceCurrency,  Long instructorId, String category, CourseLevel level){
         return new Course(
                 new CourseTitle(title),

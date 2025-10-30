@@ -113,6 +113,45 @@ export interface Section {
   lessons: Lesson[];
 }
 
+export interface PublicSection {
+  id: number;
+  title: string;
+  orderIndex: number;
+}
+
+export interface PublicCourse {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  currency: string;
+  thumbnailUrl?: string;
+  category: string;
+  level: CourseLevel;
+  instructorName: string;
+  published: boolean;
+  createdAt: string;
+  sectionsCount: number;
+  totalLessonsCount: number;
+}
+
+export interface PublicCourseDetails {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  currency: string;
+  thumbnailUrl?: string;
+  category: string;
+  level: CourseLevel;
+  instructorName: string;
+  published: boolean;
+  createdAt: string;
+  sections: PublicSection[];
+  sectionsCount: number;
+  totalLessonsCount: number;
+}
+
 export interface Course {
   id: number;
   title: string;
@@ -305,4 +344,11 @@ export interface PageResponse<T> {
   totalPages: number;
   currentPage: number;
   pageSize: number;
+}
+
+export interface PagedCoursesResponse {
+  courses: PublicCourse[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
 }

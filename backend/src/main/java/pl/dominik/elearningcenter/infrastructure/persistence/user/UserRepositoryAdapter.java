@@ -8,6 +8,7 @@ import pl.dominik.elearningcenter.domain.shared.valueobject.Username;
 import pl.dominik.elearningcenter.domain.user.User;
 import pl.dominik.elearningcenter.domain.user.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -26,6 +27,11 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     public Optional<User> findById(Long id) {
         return jpaRepository.findById(id);
+    }
+
+    @Override
+    public List<User> findAllById(Iterable<Long> ids) {
+        return jpaRepository.findAllById(ids);
     }
 
     @Override

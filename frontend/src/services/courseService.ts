@@ -2,6 +2,7 @@ import apiClient from './api';
 import type {
   ApiResponse,
   Course,
+  PublicCourseDetails,
   CreateCourseRequest,
   UpdateCourseRequest,
   AddSectionRequest,
@@ -9,6 +10,7 @@ import type {
   AddLessonRequest,
   UpdateLessonRequest,
   PageResponse,
+  PagedCoursesResponse,
   PageRequest,
   CourseLevel,
 } from '../types/api';
@@ -31,15 +33,15 @@ export const getAllCourses = async (
 
 export const getPublishedCourses = async (
   params?: PageRequest & { category?: string; level?: CourseLevel }
-): Promise<ApiResponse<PageResponse<Course>>> => {
-  const response = await apiClient.get<ApiResponse<PageResponse<Course>>>('/courses/published', {
+): Promise<PagedCoursesResponse> => {
+  const response = await apiClient.get<PagedCoursesResponse>('/courses/published', {
     params,
   });
   return response.data;
 };
 
-export const getCourseById = async (courseId: number): Promise<ApiResponse<Course>> => {
-  const response = await apiClient.get<ApiResponse<Course>>(`/courses/${courseId}`);
+export const getCourseById = async (courseId: number): Promise<PublicCourseDetails> => {
+  const response = await apiClient.get<PublicCourseDetails>(`/courses/${courseId}`);
   return response.data;
 };
 
@@ -51,6 +53,11 @@ export const getCoursesByInstructor = async (
     `/courses/instructor/${instructorId}`,
     { params }
   );
+  return response.data;
+};
+
+export const getAllCategories = async (): Promise<string[]> => {
+  const response = await apiClient.get<string[]>('/courses/categories');
   return response.data;
 };
 
