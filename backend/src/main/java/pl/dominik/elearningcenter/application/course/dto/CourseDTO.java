@@ -6,11 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Data Transfer Object for Course.
- * Pure data structure without any mapping logic.
- * Mapping is handled by CourseMapper component.
- */
 public record CourseDTO(
         Long id,
         String title,

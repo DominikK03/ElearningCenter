@@ -2,6 +2,7 @@ package pl.dominik.elearningcenter.domain.course;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import pl.dominik.elearningcenter.domain.course.exception.CourseNotFoundException;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 
@@ -14,12 +15,17 @@ public interface CourseRepository {
 
     Optional<Course> findById(Long id);
 
+    Optional<Course> findWithSectionsById(Long id);
+
     List<Course> findAll();
     Page<Course> findAll(Pageable pageable);
+    Page<Course> findAll(Specification<Course> spec, Pageable pageable);
 
     Page<Course> findByInstructorId(Long instructorId, Pageable pageable);
 
     List<Course> findByCategory(String category);
+
+    List<String> findAllDistinctCategories();
 
     Page<Course> findByPublished(boolean published, Pageable pageable);
 

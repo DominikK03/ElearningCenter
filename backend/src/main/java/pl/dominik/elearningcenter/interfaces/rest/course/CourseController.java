@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import pl.dominik.elearningcenter.application.course.command.CreateCourseCommandHandler;
 import pl.dominik.elearningcenter.application.course.command.UpdateCourseCommandHandler;
 import pl.dominik.elearningcenter.application.course.command.DeleteCourseCommandHandler;
@@ -14,8 +16,11 @@ import pl.dominik.elearningcenter.application.course.query.GetCourseDetailsQuery
 import pl.dominik.elearningcenter.application.course.query.GetAllCoursesQueryHandler;
 import pl.dominik.elearningcenter.application.course.query.GetPublishedCourseQueryHandler;
 import pl.dominik.elearningcenter.application.course.query.GetCoursesByInstructorQueryHandler;
+import pl.dominik.elearningcenter.application.course.query.GetAllCategoriesQueryHandler;
 import pl.dominik.elearningcenter.application.course.dto.PagedCoursesDTO;
+import pl.dominik.elearningcenter.application.course.dto.PagedPublicCoursesDTO;
 import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
+import pl.dominik.elearningcenter.domain.course.CourseLevel;
 import pl.dominik.elearningcenter.application.course.command.CreateCourseCommand;
 import pl.dominik.elearningcenter.application.course.command.UpdateCourseCommand;
 import pl.dominik.elearningcenter.application.course.command.DeleteCourseCommand;
@@ -28,8 +33,9 @@ import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.request.CreateCourseRequest;
 import pl.dominik.elearningcenter.interfaces.rest.course.request.UpdateCourseRequest;
-import pl.dominik.elearningcenter.interfaces.rest.course.response.CourseResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.response.PagedCoursesResponse;
+import pl.dominik.elearningcenter.interfaces.rest.course.response.PublicCourseDetailsResponse;
+import pl.dominik.elearningcenter.interfaces.rest.course.response.PagedPublicCoursesResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.response.PublishCourseResponse;
 
 @RestController
@@ -44,6 +50,7 @@ public class CourseController {
     private final GetAllCoursesQueryHandler getAllCoursesQueryHandler;
     private final GetPublishedCourseQueryHandler getPublishedCourseQueryHandler;
     private final GetCoursesByInstructorQueryHandler getCoursesByInstructorQueryHandler;
+    private final GetAllCategoriesQueryHandler getAllCategoriesQueryHandler;
 
     public CourseController(
             CreateCourseCommandHandler createCourseCommandHandler,
@@ -54,7 +61,8 @@ public class CourseController {
             GetCourseDetailsQueryHandler getCourseDetailsQueryHandler,
             GetAllCoursesQueryHandler getAllCoursesQueryHandler,
             GetPublishedCourseQueryHandler getPublishedCourseQueryHandler,
-            GetCoursesByInstructorQueryHandler getCoursesByInstructorQueryHandler
+            GetCoursesByInstructorQueryHandler getCoursesByInstructorQueryHandler,
+            GetAllCategoriesQueryHandler getAllCategoriesQueryHandler
     ) {
         this.createCourseCommandHandler = createCourseCommandHandler;
         this.updateCourseCommandHandler = updateCourseCommandHandler;
@@ -65,6 +73,7 @@ public class CourseController {
         this.getAllCoursesQueryHandler = getAllCoursesQueryHandler;
         this.getPublishedCourseQueryHandler = getPublishedCourseQueryHandler;
         this.getCoursesByInstructorQueryHandler = getCoursesByInstructorQueryHandler;
+        this.getAllCategoriesQueryHandler = getAllCategoriesQueryHandler;
     }
 
     @PostMapping
@@ -133,9 +142,9 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CourseResponse> getCourseDetails(@PathVariable Long id) {
+    public ResponseEntity<PublicCourseDetailsResponse> getCourseDetails(@PathVariable Long id) {
         return getCourseDetailsQueryHandler.handle(id)
-                .map(CourseResponse::from)
+                .map(PublicCourseDetailsResponse::from)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -167,13 +176,15 @@ public class CourseController {
     }
 
     @GetMapping("/published")
-    public ResponseEntity<PagedCoursesResponse> getPublishedCourses(
+    public ResponseEntity<PagedPublicCoursesResponse> getPublishedCourses(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) CourseLevel level
     ){
-        GetPublishedCoursesQuery commmand = new GetPublishedCoursesQuery(page, size);
-        PagedCoursesDTO dto = getPublishedCourseQueryHandler.handle(commmand);
-        return ResponseEntity.ok(PagedCoursesResponse.from(dto));
+        GetPublishedCoursesQuery command = new GetPublishedCoursesQuery(page, size, category, level);
+        PagedPublicCoursesDTO dto = getPublishedCourseQueryHandler.handle(command);
+        return ResponseEntity.ok(PagedPublicCoursesResponse.from(dto));
     }
 
 
@@ -192,6 +203,10 @@ public class CourseController {
         return ResponseEntity.ok(PagedCoursesResponse.from(dto));
     }
 
-
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getAllCategories() {
+        List<String> categories = getAllCategoriesQueryHandler.handle();
+        return ResponseEntity.ok(categories);
+    }
 
 }
