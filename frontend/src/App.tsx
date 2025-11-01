@@ -17,6 +17,8 @@ import CreateCoursePage from './pages/instructor/CreateCoursePage';
 import EditCoursePage from './pages/instructor/EditCoursePage';
 import ManageCoursePage from './pages/instructor/ManageCoursePage';
 import MyCoursesPage from './pages/instructor/MyCoursesPage';
+import MyEnrollmentsPage from './pages/student/MyEnrollmentsPage';
+import StudentCourseViewPage from './pages/student/StudentCourseViewPage';
 import NotFoundPage from './pages/error/NotFoundPage';
 import ForbiddenPage from './pages/error/ForbiddenPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -50,7 +52,16 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/profile" element={<ProfilePage />} />
 
-            <Route path="/my-courses" element={<div>My Courses - Coming Soon</div>} />
+            <Route path="/my-courses" element={
+              <ProtectedRoute allowedRoles={['STUDENT']}>
+                <MyEnrollmentsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard/course/:id" element={
+              <ProtectedRoute allowedRoles={['STUDENT']}>
+                <StudentCourseViewPage />
+              </ProtectedRoute>
+            } />
 
             <Route path="/my-teaching" element={
               <ProtectedRoute allowedRoles={['INSTRUCTOR', 'ADMIN']}>

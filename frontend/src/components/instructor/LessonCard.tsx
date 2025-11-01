@@ -1,4 +1,4 @@
-import { Edit, Trash2, Video, Clock } from 'lucide-react';
+import { Edit, Trash2, Video, Clock, FileText } from 'lucide-react';
 import Button from '../ui/Button';
 import type { Lesson } from '../../types/api';
 
@@ -7,6 +7,7 @@ interface LessonCardProps {
   index: number;
   onEdit: (lesson: Lesson) => void;
   onDelete: (lesson: Lesson) => void;
+  onManageMaterials?: (lesson: Lesson) => void;
 }
 
 export default function LessonCard({
@@ -14,6 +15,7 @@ export default function LessonCard({
   index,
   onEdit,
   onDelete,
+  onManageMaterials,
 }: LessonCardProps) {
   return (
     <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors">
@@ -49,6 +51,17 @@ export default function LessonCard({
       </div>
 
       <div className="flex items-center gap-2">
+        {/* Manage Materials Button */}
+        {onManageMaterials && (
+          <Button
+            variant="ghost"
+            onClick={() => onManageMaterials(lesson)}
+            className="!p-2"
+            title="Manage materials"
+          >
+            <FileText className="w-4 h-4" />
+          </Button>
+        )}
         {/* Edit/Delete Buttons */}
         <Button
           variant="ghost"
