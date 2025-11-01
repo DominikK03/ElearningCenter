@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import {
   BookOpen,
   Clock,
@@ -11,12 +12,14 @@ import {
   ShoppingCart,
 } from 'lucide-react';
 import { getCourseById } from '../../services/courseService';
+import { enrollInCourse } from '../../services/enrollmentService';
 import type { PublicCourseDetails } from '../../types/api';
 import { useAuth } from '../../contexts/AuthContext';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import { Accordion, AccordionItem } from '../../components/ui/Accordion';
 import Skeleton from '../../components/ui/Skeleton';
+import EnrollmentConfirmDialog from '../../components/student/EnrollmentConfirmDialog';
 
 export default function CourseDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +29,8 @@ export default function CourseDetailsPage() {
   const [course, setCourse] = useState<PublicCourseDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showEnrollDialog, setShowEnrollDialog] = useState(false);
+  const [isEnrolling, setIsEnrolling] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -55,12 +60,29 @@ export default function CourseDetailsPage() {
     }
 
     if (user.role !== 'STUDENT') {
-      alert('Only students can enroll in courses');
+      toast.error('Only students can enroll in courses');
       return;
     }
 
-    // TODO: Implement enrollment flow (will be done in Phase 6)
-    alert('Enrollment feature coming soon!');
+    setShowEnrollDialog(true);
+  };
+
+  const handleConfirmEnrollment = async () => {
+    if (!user || !course) return;
+
+    try {
+      setIsEnrolling(true);
+      await enrollInCourse({ studentId: user.id, courseId: course.id });
+      toast.success('Successfully enrolled in course!');
+      setShowEnrollDialog(false);
+      navigate(`/dashboard/course/${course.id}`);
+    } catch (err: any) {
+      console.error('Error enrolling:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to enroll in course';
+      toast.error(errorMessage);
+    } finally {
+      setIsEnrolling(false);
+    }
   };
 
   const levelColors = {
@@ -325,6 +347,18 @@ export default function CourseDetailsPage() {
           </div>
         </div>
       </div>
+
+      {/* Enrollment Confirmation Dialog */}
+      {user && course && (
+        <EnrollmentConfirmDialog
+          course={course}
+          user={user}
+          isOpen={showEnrollDialog}
+          onClose={() => setShowEnrollDialog(false)}
+          onConfirm={handleConfirmEnrollment}
+          isEnrolling={isEnrolling}
+        />
+      )}
     </div>
   );
 }

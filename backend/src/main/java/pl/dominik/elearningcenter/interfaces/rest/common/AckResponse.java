@@ -22,6 +22,10 @@ public record AckResponse(
         return new AckResponse(message, null);
     }
 
+    public static AckResponse error(String message) {
+        return new AckResponse(message, null);
+    }
+
     public static AckResponse of(String message, Long id) {
         return new AckResponse(message, id);
     }

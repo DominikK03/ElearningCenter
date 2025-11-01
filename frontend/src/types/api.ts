@@ -258,13 +258,14 @@ export interface Enrollment {
   id: number;
   studentId: number;
   courseId: number;
-  progress: number;
+  progressPercentage: number;
   status: EnrollmentStatus;
   enrolledAt: string;
   completedAt?: string;
 }
 
 export interface EnrollRequest {
+  studentId: number;
   courseId: number;
 }
 

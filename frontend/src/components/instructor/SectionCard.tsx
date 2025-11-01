@@ -32,6 +32,7 @@ interface SectionCardProps {
   onAddLesson: (section: Section) => void;
   onEditLesson: (section: Section, lesson: Lesson) => void;
   onDeleteLesson: (section: Section, lesson: Lesson) => void;
+  onManageMaterials: (section: Section, lesson: Lesson) => void;
   onRefresh: () => Promise<void>;
 }
 
@@ -44,6 +45,7 @@ export default function SectionCard({
   onAddLesson,
   onEditLesson,
   onDeleteLesson,
+  onManageMaterials,
   onRefresh,
 }: SectionCardProps) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -191,6 +193,7 @@ export default function SectionCard({
                         index={lessonIndex}
                         onEdit={(lesson) => onEditLesson(section, lesson)}
                         onDelete={(lesson) => onDeleteLesson(section, lesson)}
+                        onManageMaterials={(lesson) => onManageMaterials(section, lesson)}
                       />
                     ))}
                   </>

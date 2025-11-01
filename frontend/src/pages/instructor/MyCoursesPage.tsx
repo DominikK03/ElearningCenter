@@ -20,7 +20,6 @@ export default function MyCoursesPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
 
-  // Delete dialog state
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -46,7 +45,7 @@ export default function MyCoursesPage() {
 
         const pageData = await getCoursesByInstructor(user.id, {
           page: currentPage,
-          size: 9, // 3x3 grid
+          size: 9,
         });
 
         setCourses(pageData.courses);
@@ -80,7 +79,6 @@ export default function MyCoursesPage() {
       setShowDeleteDialog(false);
       setCourseToDelete(null);
 
-      // Refresh courses list
       const pageData = await getCoursesByInstructor(user!.id, {
         page: currentPage,
         size: 9,

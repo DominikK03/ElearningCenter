@@ -40,6 +40,7 @@ import AddSectionForm from '../../components/instructor/AddSectionForm';
 import EditSectionForm from '../../components/instructor/EditSectionForm';
 import AddLessonForm from '../../components/instructor/AddLessonForm';
 import EditLessonForm from '../../components/instructor/EditLessonForm';
+import ManageMaterialsModal from '../../components/instructor/ManageMaterialsModal';
 import type { FullCourseDetails, Section, Lesson } from '../../types/api';
 
 export default function ManageCoursePage() {
@@ -51,20 +52,18 @@ export default function ManageCoursePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Section modals state
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
   const [showEditSectionModal, setShowEditSectionModal] = useState(false);
   const [showDeleteSectionDialog, setShowDeleteSectionDialog] = useState(false);
   const [selectedSection, setSelectedSection] = useState<Section | null>(null);
 
-  // Lesson modals state
   const [showAddLessonModal, setShowAddLessonModal] = useState(false);
   const [showEditLessonModal, setShowEditLessonModal] = useState(false);
   const [showDeleteLessonDialog, setShowDeleteLessonDialog] = useState(false);
+  const [showManageMaterialsModal, setShowManageMaterialsModal] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [currentSection, setCurrentSection] = useState<Section | null>(null);
 
-  // Loading states
   const [isAddingSection, setIsAddingSection] = useState(false);
   const [isUpdatingSection, setIsUpdatingSection] = useState(false);
   const [isDeletingSection, setIsDeletingSection] = useState(false);
@@ -72,15 +71,12 @@ export default function ManageCoursePage() {
   const [isUpdatingLesson, setIsUpdatingLesson] = useState(false);
   const [isDeletingLesson, setIsDeletingLesson] = useState(false);
 
-  // Reorder mode state
   const [isReorderMode, setIsReorderMode] = useState(false);
   const [reorderedSections, setReorderedSections] = useState<Section[]>([]);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
 
-  // Publish/Unpublish state
   const [isPublishing, setIsPublishing] = useState(false);
 
-  // Drag and drop sensors
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -282,11 +278,15 @@ export default function ManageCoursePage() {
     setShowDeleteLessonDialog(true);
   };
 
-  // Publish/Unpublish functions
+  const openManageMaterialsModal = (section: Section, lesson: Lesson) => {
+    setCurrentSection(section);
+    setSelectedLesson(lesson);
+    setShowManageMaterialsModal(true);
+  };
+
   const handlePublish = async () => {
     if (!id || !course) return;
 
-    // Walidacja: kurs musi mieć przynajmniej 1 sekcję z 1 lekcją
     if (course.sectionsCount === 0 || course.totalLessonsCount === 0) {
       toast.error('Cannot publish: Course must have at least 1 section with 1 lesson');
       return;
@@ -321,7 +321,6 @@ export default function ManageCoursePage() {
     }
   };
 
-  // Reorder functions
   const handleEnterReorderMode = () => {
     if (course) {
       setReorderedSections([...course.sections]);
@@ -353,7 +352,6 @@ export default function ManageCoursePage() {
     try {
       setIsSavingOrder(true);
 
-      // Create map of sectionId -> newOrderIndex
       const sectionOrderMap: Record<number, number> = {};
       reorderedSections.forEach((section, index) => {
         sectionOrderMap[section.id] = index;
@@ -542,6 +540,7 @@ export default function ManageCoursePage() {
                 onAddLesson={openAddLessonModal}
                 onEditLesson={openEditLessonModal}
                 onDeleteLesson={openDeleteLessonDialog}
+                onManageMaterials={openManageMaterialsModal}
                 onRefresh={refreshCourse}
               />
             ))
@@ -665,11 +664,26 @@ export default function ManageCoursePage() {
         variant="danger"
         isLoading={isDeletingLesson}
       />
+
+      {/* Manage Materials Modal */}
+      {selectedLesson && currentSection && (
+        <ManageMaterialsModal
+          isOpen={showManageMaterialsModal}
+          onClose={() => {
+            setShowManageMaterialsModal(false);
+            setSelectedLesson(null);
+            setCurrentSection(null);
+          }}
+          lesson={selectedLesson}
+          courseId={parseInt(id!)}
+          sectionId={currentSection.id}
+          onRefresh={refreshCourse}
+        />
+      )}
     </div>
   );
 }
 
-// Sortable Section Card Component for drag and drop
 interface SortableSectionCardProps {
   section: Section;
 }

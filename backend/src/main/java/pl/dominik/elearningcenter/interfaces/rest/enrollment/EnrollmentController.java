@@ -14,6 +14,8 @@ import pl.dominik.elearningcenter.application.enrollment.query.GetCourseEnrollme
 import pl.dominik.elearningcenter.application.enrollment.query.GetCourseEnrollmentsQueryHandler;
 import pl.dominik.elearningcenter.application.enrollment.query.GetStudentEnrollmentsQuery;
 import pl.dominik.elearningcenter.application.enrollment.query.GetStudentEnrollmentsQueryHandler;
+import pl.dominik.elearningcenter.application.enrollment.query.GetCompletedLessonsQuery;
+import pl.dominik.elearningcenter.application.enrollment.query.GetCompletedLessonsQueryHandler;
 import pl.dominik.elearningcenter.application.enrollment.dto.EnrollmentDTO;
 import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
@@ -21,6 +23,7 @@ import pl.dominik.elearningcenter.interfaces.rest.enrollment.request.EnrollStude
 import pl.dominik.elearningcenter.interfaces.rest.enrollment.response.EnrollmentResponse;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/enrollments")
@@ -31,19 +34,22 @@ public class EnrollmentController {
     private final GetCourseEnrollmentsQueryHandler getCourseEnrollmentsQueryHandler;
     private final UnenrollStudentCommandHandler unenrollStudentCommandHandler;
     private final MarkLessonAsCompletedCommandHandler markLessonAsCompletedCommandHandler;
+    private final GetCompletedLessonsQueryHandler getCompletedLessonsQueryHandler;
 
     public EnrollmentController(
             EnrollStudentCommandHandler enrollStudentCommandHandler,
             GetStudentEnrollmentsQueryHandler getStudentEnrollmentsQueryHandler,
             GetCourseEnrollmentsQueryHandler getCourseEnrollmentsQueryHandler,
             UnenrollStudentCommandHandler unenrollStudentCommandHandler,
-            MarkLessonAsCompletedCommandHandler markLessonAsCompletedCommandHandler
+            MarkLessonAsCompletedCommandHandler markLessonAsCompletedCommandHandler,
+            GetCompletedLessonsQueryHandler getCompletedLessonsQueryHandler
     ) {
         this.enrollStudentCommandHandler = enrollStudentCommandHandler;
         this.getStudentEnrollmentsQueryHandler = getStudentEnrollmentsQueryHandler;
         this.getCourseEnrollmentsQueryHandler = getCourseEnrollmentsQueryHandler;
         this.unenrollStudentCommandHandler = unenrollStudentCommandHandler;
         this.markLessonAsCompletedCommandHandler = markLessonAsCompletedCommandHandler;
+        this.getCompletedLessonsQueryHandler = getCompletedLessonsQueryHandler;
     }
 
     @PostMapping
@@ -102,5 +108,15 @@ public class EnrollmentController {
         );
         markLessonAsCompletedCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Lesson marked as completed"));
+    }
+
+    @GetMapping("/{enrollmentId}/completed-lessons")
+    public ResponseEntity<List<Long>> getCompletedLessons(
+            @PathVariable Long enrollmentId,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+        GetCompletedLessonsQuery query = new GetCompletedLessonsQuery(enrollmentId, currentUser.getUserId());
+        List<Long> completedLessonIds = getCompletedLessonsQueryHandler.handle(query);
+        return ResponseEntity.ok(completedLessonIds);
     }
 }
