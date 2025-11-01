@@ -1,6 +1,7 @@
 package pl.dominik.elearningcenter.domain.course;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Formula;
 import pl.dominik.elearningcenter.domain.course.exception.CourseNotPublishedException;
 import pl.dominik.elearningcenter.domain.course.exception.SectionNotFoundException;
 import pl.dominik.elearningcenter.domain.course.valueobject.CourseDescription;
@@ -61,7 +62,14 @@ public class Course extends AggregateRoot<Long> {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("orderIndex ASC")
     private List<Section> sections = new ArrayList<>();
+
+    @Formula("(SELECT COUNT(*) FROM sections s WHERE s.course_id = id)")
+    private int sectionsCount;
+
+    @Formula("(SELECT COALESCE(SUM((SELECT COUNT(*) FROM lessons l WHERE l.section_id = s.id)), 0) FROM sections s WHERE s.course_id = id)")
+    private int totalLessonsCount;
 
     protected Course() {
         super();
@@ -151,6 +159,30 @@ public class Course extends AggregateRoot<Long> {
         sections.remove(section);
     }
 
+    public void reorderSection(Long sectionId, int newOrderIndex) {
+        Section section = findSection(sectionId);
+        int currentIndex = section.getOrderIndex();
+
+        if (currentIndex == newOrderIndex) {
+            return;
+        }
+
+        sections.remove(section);
+
+        if (newOrderIndex < 0) {
+            newOrderIndex = 0;
+        }
+        if (newOrderIndex > sections.size()) {
+            newOrderIndex = sections.size();
+        }
+
+        sections.add(newOrderIndex, section);
+
+        for (int i = 0; i < sections.size(); i++) {
+            sections.get(i).updateOrderIndex(i);
+        }
+    }
+
     public void updatePrice(Money newPrice){
         if (newPrice == null){
             throw new IllegalArgumentException("Price cannot be null");
@@ -171,13 +203,11 @@ public class Course extends AggregateRoot<Long> {
     }
 
     public int getSectionsCount(){
-        return sections.size();
+        return sectionsCount;
     }
 
     public int getTotalLessonsCount(){
-        return sections.stream()
-                .mapToInt(Section::getLessonsCount)
-                .sum();
+        return totalLessonsCount;
     }
 
     public CourseTitle getTitle(){

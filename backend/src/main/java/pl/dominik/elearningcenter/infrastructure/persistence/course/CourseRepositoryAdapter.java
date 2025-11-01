@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import pl.dominik.elearningcenter.domain.course.Course;
-import pl.dominik.elearningcenter.domain.course.CourseLevel;
 import pl.dominik.elearningcenter.domain.course.CourseRepository;
 
 import java.util.List;
@@ -82,6 +81,6 @@ public class CourseRepositoryAdapter implements CourseRepository {
 
     @Override
     public Optional<Course> findWithSectionsById(Long id) {
-        return jpaRepository.findWithSectionsById(id);
+        return jpaRepository.findWithSectionsAndLessonsById(id);
     }
 }

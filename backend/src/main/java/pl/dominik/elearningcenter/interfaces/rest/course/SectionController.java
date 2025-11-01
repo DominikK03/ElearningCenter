@@ -8,13 +8,16 @@ import org.springframework.web.bind.annotation.*;
 import pl.dominik.elearningcenter.application.course.command.AddSectionCommandHandler;
 import pl.dominik.elearningcenter.application.course.command.DeleteSectionCommandHandler;
 import pl.dominik.elearningcenter.application.course.command.UpdateSectionCommandHandler;
+import pl.dominik.elearningcenter.application.course.command.UpdateSectionsOrderCommandHandler;
 import pl.dominik.elearningcenter.application.course.command.AddSectionCommand;
 import pl.dominik.elearningcenter.application.course.command.DeleteSectionCommand;
 import pl.dominik.elearningcenter.application.course.command.UpdateSectionCommand;
+import pl.dominik.elearningcenter.application.course.command.UpdateSectionsOrderCommand;
 import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.request.AddSectionRequest;
 import pl.dominik.elearningcenter.interfaces.rest.course.request.UpdateSectionRequest;
+import pl.dominik.elearningcenter.interfaces.rest.course.request.UpdateSectionsOrderRequest;
 
 @RestController
 @RequestMapping("/api/courses/{courseId}/sections")
@@ -22,15 +25,18 @@ public class SectionController {
     private final AddSectionCommandHandler addSectionCommandHandler;
     private final UpdateSectionCommandHandler updateSectionCommandHandler;
     private final DeleteSectionCommandHandler deleteSectionCommandHandler;
+    private final UpdateSectionsOrderCommandHandler updateSectionsOrderCommandHandler;
 
     public SectionController(
             AddSectionCommandHandler addSectionCommandHandler,
             UpdateSectionCommandHandler updateSectionCommandHandler,
-            DeleteSectionCommandHandler deleteSectionCommandHandler
+            DeleteSectionCommandHandler deleteSectionCommandHandler,
+            UpdateSectionsOrderCommandHandler updateSectionsOrderCommandHandler
     ) {
         this.addSectionCommandHandler = addSectionCommandHandler;
         this.updateSectionCommandHandler = updateSectionCommandHandler;
         this.deleteSectionCommandHandler = deleteSectionCommandHandler;
+        this.updateSectionsOrderCommandHandler = updateSectionsOrderCommandHandler;
     }
 
     @PostMapping
@@ -63,7 +69,6 @@ public class SectionController {
                 courseId,
                 sectionId,
                 request.title(),
-                request.orderIndex(),
                 userDetails.getUserId()
         );
 
@@ -86,5 +91,22 @@ public class SectionController {
 
         deleteSectionCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Section deleted successfully"));
+    }
+
+    @PatchMapping("/order")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
+    public ResponseEntity<AckResponse> updateSectionsOrder(
+            @PathVariable Long courseId,
+            @RequestBody UpdateSectionsOrderRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UpdateSectionsOrderCommand command = new UpdateSectionsOrderCommand(
+                courseId,
+                request.sectionOrderMap(),
+                userDetails.getUserId()
+        );
+
+        updateSectionsOrderCommandHandler.handle(command);
+        return ResponseEntity.ok(AckResponse.success("Sections order updated successfully"));
     }
 }

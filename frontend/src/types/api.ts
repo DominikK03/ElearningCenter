@@ -10,6 +10,11 @@ export interface ApiResponse<T = never> {
   timestamp?: string;
 }
 
+export interface AckResponse {
+  message: string;
+  resourceId: number | null;
+}
+
 // ============================================
 // User Types
 // ============================================
@@ -91,8 +96,8 @@ export const CourseLevel = {
 export interface Material {
   id: number;
   title: string;
-  url: string;
-  type: string;
+  fileUrl: string;
+  fileType: string;
 }
 
 export interface Lesson {
@@ -109,8 +114,24 @@ export interface Section {
   id: number;
   title: string;
   orderIndex: number;
-  lessonsCount: number;
   lessons: Lesson[];
+}
+
+export interface FullCourseDetails {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  currency: string;
+  thumbnailUrl?: string;
+  category: string;
+  level: CourseLevel;
+  instructorId: number;
+  published: boolean;
+  createdAt: string;
+  sections: Section[];
+  sectionsCount: number;
+  totalLessonsCount: number;
 }
 
 export interface PublicSection {
@@ -173,6 +194,7 @@ export interface CreateCourseRequest {
   title: string;
   description: string;
   price: number;
+  currency: string;
   category: string;
   level: CourseLevel;
   thumbnailUrl?: string;
@@ -182,9 +204,16 @@ export interface UpdateCourseRequest {
   title?: string;
   description?: string;
   price?: number;
+  currency?: string;
   category?: string;
   level?: CourseLevel;
   thumbnailUrl?: string;
+}
+
+export interface PublishCourseResponse {
+  id: number;
+  published: boolean;
+  publishedAt: string;
 }
 
 export interface AddSectionRequest {
@@ -347,6 +376,13 @@ export interface PageResponse<T> {
 }
 
 export interface PagedCoursesResponse {
+  courses: Course[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+}
+
+export interface PagedPublicCoursesResponse {
   courses: PublicCourse[];
   totalElements: number;
   totalPages: number;

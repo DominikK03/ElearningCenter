@@ -2,6 +2,7 @@ package pl.dominik.elearningcenter.infrastructure.persistence.course;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -20,6 +21,7 @@ interface CourseJpaRepository extends JpaRepository<Course, Long>, JpaSpecificat
     @Query("SELECT DISTINCT c.category FROM Course c WHERE c.category IS NOT NULL ORDER BY c.category")
     List<String> findAllDistinctCategories();
 
-    @Query("SELECT c FROM Course c LEFT JOIN FETCH c.sections WHERE c.id = :id")
-    Optional<Course> findWithSectionsById(@Param("id") Long id);
+    @EntityGraph(attributePaths = {"sections"})
+    @Query("SELECT c FROM Course c WHERE c.id = :id")
+    Optional<Course> findWithSectionsAndLessonsById(@Param("id") Long id);
 }

@@ -106,6 +106,12 @@ public class Lesson {
     public void updateContent(String newContent){
         this.content = newContent;
     }
+    public void updateVideoUrl(String newVideoUrl){
+        this.videoUrl = newVideoUrl;
+    }
+    public void updateDurationMinutes(Integer newDurationMinutes){
+        this.durationMinutes = newDurationMinutes;
+    }
     public void updateOrderIndex(Integer newOrderIndex){
         if (newOrderIndex == null || newOrderIndex < 0){
             throw new IllegalArgumentException("Order index must be >= 0");

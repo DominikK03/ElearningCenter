@@ -27,6 +27,9 @@ public class UpdateLessonCommandHandler {
         Lesson lesson = section.findLesson(command.lessonId());
         lesson.updateTitle(command.title());
         lesson.updateContent(command.content());
-        lesson.updateOrderIndex(command.orderIndex());
+        lesson.updateVideoUrl(command.videoUrl());
+        lesson.updateDurationMinutes(command.durationMinutes());
+
+        courseRepository.save(course);
     }
 }

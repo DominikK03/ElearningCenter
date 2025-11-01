@@ -1,16 +1,18 @@
 import apiClient from './api';
 import type {
   ApiResponse,
-  Course,
+  AckResponse,
   PublicCourseDetails,
+  FullCourseDetails,
   CreateCourseRequest,
   UpdateCourseRequest,
+  PublishCourseResponse,
   AddSectionRequest,
   UpdateSectionRequest,
   AddLessonRequest,
   UpdateLessonRequest,
-  PageResponse,
   PagedCoursesResponse,
+  PagedPublicCoursesResponse,
   PageRequest,
   CourseLevel,
 } from '../types/api';
@@ -19,22 +21,22 @@ import type {
 // Course Management
 // ============================================
 
-export const createCourse = async (data: CreateCourseRequest): Promise<ApiResponse<Course>> => {
-  const response = await apiClient.post<ApiResponse<Course>>('/courses', data);
+export const createCourse = async (data: CreateCourseRequest): Promise<AckResponse> => {
+  const response = await apiClient.post<AckResponse>('/courses', data);
   return response.data;
 };
 
 export const getAllCourses = async (
   params?: PageRequest & { category?: string; level?: CourseLevel }
-): Promise<ApiResponse<PageResponse<Course>>> => {
-  const response = await apiClient.get<ApiResponse<PageResponse<Course>>>('/courses', { params });
+): Promise<PagedCoursesResponse> => {
+  const response = await apiClient.get<PagedCoursesResponse>('/courses', { params });
   return response.data;
 };
 
 export const getPublishedCourses = async (
   params?: PageRequest & { category?: string; level?: CourseLevel }
-): Promise<PagedCoursesResponse> => {
-  const response = await apiClient.get<PagedCoursesResponse>('/courses/published', {
+): Promise<PagedPublicCoursesResponse> => {
+  const response = await apiClient.get<PagedPublicCoursesResponse>('/courses/published', {
     params,
   });
   return response.data;
@@ -45,11 +47,16 @@ export const getCourseById = async (courseId: number): Promise<PublicCourseDetai
   return response.data;
 };
 
+export const getFullCourseDetails = async (courseId: number): Promise<FullCourseDetails> => {
+  const response = await apiClient.get<FullCourseDetails>(`/courses/${courseId}/full`);
+  return response.data;
+};
+
 export const getCoursesByInstructor = async (
   instructorId: number,
   params?: PageRequest
-): Promise<ApiResponse<PageResponse<Course>>> => {
-  const response = await apiClient.get<ApiResponse<PageResponse<Course>>>(
+): Promise<PagedCoursesResponse> => {
+  const response = await apiClient.get<PagedCoursesResponse>(
     `/courses/instructor/${instructorId}`,
     { params }
   );
@@ -64,23 +71,23 @@ export const getAllCategories = async (): Promise<string[]> => {
 export const updateCourse = async (
   courseId: number,
   data: UpdateCourseRequest
-): Promise<ApiResponse<Course>> => {
-  const response = await apiClient.put<ApiResponse<Course>>(`/courses/${courseId}/update`, data);
+): Promise<AckResponse> => {
+  const response = await apiClient.put<AckResponse>(`/courses/${courseId}/update`, data);
   return response.data;
 };
 
-export const publishCourse = async (courseId: number): Promise<ApiResponse> => {
-  const response = await apiClient.post<ApiResponse>(`/courses/${courseId}/publish`);
+export const publishCourse = async (courseId: number): Promise<PublishCourseResponse> => {
+  const response = await apiClient.post<PublishCourseResponse>(`/courses/${courseId}/publish`);
   return response.data;
 };
 
-export const unpublishCourse = async (courseId: number): Promise<ApiResponse> => {
-  const response = await apiClient.post<ApiResponse>(`/courses/${courseId}/unpublish`);
+export const unpublishCourse = async (courseId: number): Promise<AckResponse> => {
+  const response = await apiClient.post<AckResponse>(`/courses/${courseId}/unpublish`);
   return response.data;
 };
 
-export const deleteCourse = async (courseId: number): Promise<ApiResponse> => {
-  const response = await apiClient.delete<ApiResponse>(`/courses/${courseId}`);
+export const deleteCourse = async (courseId: number): Promise<AckResponse> => {
+  const response = await apiClient.delete<AckResponse>(`/courses/${courseId}`);
   return response.data;
 };
 
@@ -149,6 +156,33 @@ export const deleteLesson = async (
 ): Promise<ApiResponse> => {
   const response = await apiClient.delete<ApiResponse>(
     `/courses/${courseId}/sections/${sectionId}/lessons/${lessonId}`
+  );
+  return response.data;
+};
+
+// ============================================
+// Batch Order Updates
+// ============================================
+
+export const updateSectionsOrder = async (
+  courseId: number,
+  sectionOrderMap: Record<number, number>
+): Promise<ApiResponse> => {
+  const response = await apiClient.patch<ApiResponse>(
+    `/courses/${courseId}/sections/order`,
+    { sectionOrderMap }
+  );
+  return response.data;
+};
+
+export const updateLessonsOrder = async (
+  courseId: number,
+  sectionId: number,
+  lessonOrderMap: Record<number, number>
+): Promise<ApiResponse> => {
+  const response = await apiClient.patch<ApiResponse>(
+    `/courses/${courseId}/sections/${sectionId}/lessons/order`,
+    { lessonOrderMap }
   );
   return response.data;
 };
