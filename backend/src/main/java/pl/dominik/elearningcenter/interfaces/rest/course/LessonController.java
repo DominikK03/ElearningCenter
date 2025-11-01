@@ -8,13 +8,16 @@ import org.springframework.web.bind.annotation.*;
 import pl.dominik.elearningcenter.application.course.command.AddLessonCommandHandler;
 import pl.dominik.elearningcenter.application.course.command.DeleteLessonCommandHandler;
 import pl.dominik.elearningcenter.application.course.command.UpdateLessonCommandHandler;
+import pl.dominik.elearningcenter.application.course.command.UpdateLessonsOrderCommandHandler;
 import pl.dominik.elearningcenter.application.course.command.AddLessonCommand;
 import pl.dominik.elearningcenter.application.course.command.DeleteLessonCommand;
 import pl.dominik.elearningcenter.application.course.command.UpdateLessonCommand;
+import pl.dominik.elearningcenter.application.course.command.UpdateLessonsOrderCommand;
 import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.request.AddLessonRequest;
 import pl.dominik.elearningcenter.interfaces.rest.course.request.UpdateLessonRequest;
+import pl.dominik.elearningcenter.interfaces.rest.course.request.UpdateLessonsOrderRequest;
 
 @RestController
 @RequestMapping("/api/courses/{courseId}/sections/{sectionId}/lessons")
@@ -22,15 +25,18 @@ public class LessonController {
     private final AddLessonCommandHandler addLessonCommandHandler;
     private final UpdateLessonCommandHandler updateLessonCommandHandler;
     private final DeleteLessonCommandHandler deleteLessonCommandHandler;
+    private final UpdateLessonsOrderCommandHandler updateLessonsOrderCommandHandler;
 
     public LessonController(
             AddLessonCommandHandler addLessonCommandHandler,
             UpdateLessonCommandHandler updateLessonCommandHandler,
-            DeleteLessonCommandHandler deleteLessonCommandHandler
+            DeleteLessonCommandHandler deleteLessonCommandHandler,
+            UpdateLessonsOrderCommandHandler updateLessonsOrderCommandHandler
     ) {
         this.addLessonCommandHandler = addLessonCommandHandler;
         this.updateLessonCommandHandler = updateLessonCommandHandler;
         this.deleteLessonCommandHandler = deleteLessonCommandHandler;
+        this.updateLessonsOrderCommandHandler = updateLessonsOrderCommandHandler;
     }
 
     @PostMapping
@@ -68,7 +74,8 @@ public class LessonController {
                 lessonId,
                 request.title(),
                 request.content(),
-                request.orderIndex(),
+                request.videoUrl(),
+                request.durationMinutes(),
                 userDetails.getUserId()
         );
 
@@ -92,5 +99,24 @@ public class LessonController {
         );
         deleteLessonCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Lesson deleted successfully"));
+    }
+
+    @PatchMapping("/order")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
+    public ResponseEntity<AckResponse> updateLessonsOrder(
+            @PathVariable Long courseId,
+            @PathVariable Long sectionId,
+            @RequestBody UpdateLessonsOrderRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UpdateLessonsOrderCommand command = new UpdateLessonsOrderCommand(
+                courseId,
+                sectionId,
+                request.lessonOrderMap(),
+                userDetails.getUserId()
+        );
+
+        updateLessonsOrderCommandHandler.handle(command);
+        return ResponseEntity.ok(AckResponse.success("Lessons order updated successfully"));
     }
 }

@@ -13,6 +13,10 @@ import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import AdminPanelPage from './pages/admin/AdminPanelPage';
+import CreateCoursePage from './pages/instructor/CreateCoursePage';
+import EditCoursePage from './pages/instructor/EditCoursePage';
+import ManageCoursePage from './pages/instructor/ManageCoursePage';
+import MyCoursesPage from './pages/instructor/MyCoursesPage';
 import NotFoundPage from './pages/error/NotFoundPage';
 import ForbiddenPage from './pages/error/ForbiddenPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -48,8 +52,26 @@ function App() {
 
             <Route path="/my-courses" element={<div>My Courses - Coming Soon</div>} />
 
-            <Route path="/my-teaching" element={<div>My Teaching - Coming Soon</div>} />
-            <Route path="/create-course" element={<div>Create Course - Coming Soon</div>} />
+            <Route path="/my-teaching" element={
+              <ProtectedRoute allowedRoles={['INSTRUCTOR', 'ADMIN']}>
+                <MyCoursesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/create-course" element={
+              <ProtectedRoute allowedRoles={['INSTRUCTOR', 'ADMIN']}>
+                <CreateCoursePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/courses/:id/edit" element={
+              <ProtectedRoute allowedRoles={['INSTRUCTOR', 'ADMIN']}>
+                <EditCoursePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard/course/:id/manage" element={
+              <ProtectedRoute allowedRoles={['INSTRUCTOR', 'ADMIN']}>
+                <ManageCoursePage />
+              </ProtectedRoute>
+            } />
 
             <Route path="/admin" element={
               <ProtectedRoute allowedRoles={['ADMIN']}>

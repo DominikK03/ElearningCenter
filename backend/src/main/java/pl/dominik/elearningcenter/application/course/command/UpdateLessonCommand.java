@@ -6,7 +6,8 @@ public record UpdateLessonCommand(
         Long lessonId,
         String title,
         String content,
-        Integer orderIndex,
+        String videoUrl,
+        Integer durationMinutes,
         Long instructorId
 ) {
 }

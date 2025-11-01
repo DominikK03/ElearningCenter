@@ -27,6 +27,8 @@ public class Section {
     private Course course;
 
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("orderIndex ASC")
+    @org.hibernate.annotations.BatchSize(size = 10)
     private List<Lesson> lessons = new ArrayList<>();
 
     protected Section(){}
@@ -67,6 +69,30 @@ public class Section {
 
     public void removeLesson(Long lessonId){
         lessons.removeIf(l -> l.getId().equals(lessonId));
+    }
+
+    public void reorderLesson(Long lessonId, int newOrderIndex) {
+        Lesson lesson = findLesson(lessonId);
+        int currentIndex = lesson.getOrderIndex();
+
+        if (currentIndex == newOrderIndex) {
+            return;
+        }
+
+        lessons.remove(lesson);
+
+        if (newOrderIndex < 0) {
+            newOrderIndex = 0;
+        }
+        if (newOrderIndex > lessons.size()) {
+            newOrderIndex = lessons.size();
+        }
+
+        lessons.add(newOrderIndex, lesson);
+
+        for (int i = 0; i < lessons.size(); i++) {
+            lessons.get(i).updateOrderIndex(i);
+        }
     }
 
     public boolean hasLessons(){

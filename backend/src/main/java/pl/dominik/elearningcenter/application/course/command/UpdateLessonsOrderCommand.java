@@ -1,9 +1,11 @@
 package pl.dominik.elearningcenter.application.course.command;
 
-public record UpdateSectionCommand(
+import java.util.Map;
+
+public record UpdateLessonsOrderCommand(
         Long courseId,
         Long sectionId,
-        String title,
+        Map<Long, Integer> lessonOrderMap,
         Long instructorId
 ) {
 }

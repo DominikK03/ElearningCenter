@@ -17,6 +17,8 @@ import pl.dominik.elearningcenter.application.course.query.GetAllCoursesQueryHan
 import pl.dominik.elearningcenter.application.course.query.GetPublishedCourseQueryHandler;
 import pl.dominik.elearningcenter.application.course.query.GetCoursesByInstructorQueryHandler;
 import pl.dominik.elearningcenter.application.course.query.GetAllCategoriesQueryHandler;
+import pl.dominik.elearningcenter.application.course.query.GetFullCourseDetailsQueryHandler;
+import pl.dominik.elearningcenter.application.course.query.GetFullCourseDetailsQuery;
 import pl.dominik.elearningcenter.application.course.dto.PagedCoursesDTO;
 import pl.dominik.elearningcenter.application.course.dto.PagedPublicCoursesDTO;
 import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
@@ -37,6 +39,7 @@ import pl.dominik.elearningcenter.interfaces.rest.course.response.PagedCoursesRe
 import pl.dominik.elearningcenter.interfaces.rest.course.response.PublicCourseDetailsResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.response.PagedPublicCoursesResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.response.PublishCourseResponse;
+import pl.dominik.elearningcenter.interfaces.rest.course.response.FullCourseDetailsResponse;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -51,6 +54,7 @@ public class CourseController {
     private final GetPublishedCourseQueryHandler getPublishedCourseQueryHandler;
     private final GetCoursesByInstructorQueryHandler getCoursesByInstructorQueryHandler;
     private final GetAllCategoriesQueryHandler getAllCategoriesQueryHandler;
+    private final GetFullCourseDetailsQueryHandler getFullCourseDetailsQueryHandler;
 
     public CourseController(
             CreateCourseCommandHandler createCourseCommandHandler,
@@ -62,7 +66,8 @@ public class CourseController {
             GetAllCoursesQueryHandler getAllCoursesQueryHandler,
             GetPublishedCourseQueryHandler getPublishedCourseQueryHandler,
             GetCoursesByInstructorQueryHandler getCoursesByInstructorQueryHandler,
-            GetAllCategoriesQueryHandler getAllCategoriesQueryHandler
+            GetAllCategoriesQueryHandler getAllCategoriesQueryHandler,
+            GetFullCourseDetailsQueryHandler getFullCourseDetailsQueryHandler
     ) {
         this.createCourseCommandHandler = createCourseCommandHandler;
         this.updateCourseCommandHandler = updateCourseCommandHandler;
@@ -74,6 +79,7 @@ public class CourseController {
         this.getPublishedCourseQueryHandler = getPublishedCourseQueryHandler;
         this.getCoursesByInstructorQueryHandler = getCoursesByInstructorQueryHandler;
         this.getAllCategoriesQueryHandler = getAllCategoriesQueryHandler;
+        this.getFullCourseDetailsQueryHandler = getFullCourseDetailsQueryHandler;
     }
 
     @PostMapping
@@ -147,6 +153,19 @@ public class CourseController {
                 .map(PublicCourseDetailsResponse::from)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/full")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN', 'STUDENT')")
+    public ResponseEntity<FullCourseDetailsResponse> getFullCourseDetails(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        GetFullCourseDetailsQuery query = new GetFullCourseDetailsQuery(id, userDetails.getUserId());
+        return getFullCourseDetailsQueryHandler.handle(query)
+                .map(FullCourseDetailsResponse::from)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
     }
 
     @DeleteMapping("/{id}")
