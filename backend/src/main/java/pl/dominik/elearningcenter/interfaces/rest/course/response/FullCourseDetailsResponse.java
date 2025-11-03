@@ -25,7 +25,8 @@ public record FullCourseDetailsResponse(
         LocalDateTime createdAt,
         List<SectionResponse> sections,
         int sectionsCount,
-        int totalLessonsCount
+        int totalLessonsCount,
+        Long quizId
 ) {
     public static FullCourseDetailsResponse from(CourseDTO dto) {
         var sections = dto.sections().stream()
@@ -46,7 +47,8 @@ public record FullCourseDetailsResponse(
                 dto.createdAt(),
                 sections,
                 dto.sectionsCount(),
-                dto.totalLessonsCount()
+                dto.totalLessonsCount(),
+                dto.quizId()
         );
     }
 
@@ -54,7 +56,8 @@ public record FullCourseDetailsResponse(
             Long id,
             String title,
             Integer orderIndex,
-            List<LessonResponse> lessons
+            List<LessonResponse> lessons,
+            Long quizId
     ) {
         public static SectionResponse from(SectionDTO dto) {
             var lessons = dto.lessons().stream()
@@ -65,7 +68,8 @@ public record FullCourseDetailsResponse(
                     dto.id(),
                     dto.title(),
                     dto.orderIndex(),
-                    lessons
+                    lessons,
+                    dto.quizId()
             );
         }
     }
@@ -77,7 +81,8 @@ public record FullCourseDetailsResponse(
             String videoUrl,
             Integer durationMinutes,
             Integer orderIndex,
-            List<MaterialResponse> materials
+            List<MaterialResponse> materials,
+            Long quizId
     ) {
         public static LessonResponse from(LessonDTO dto) {
             var materials = dto.materials().stream()
@@ -91,7 +96,8 @@ public record FullCourseDetailsResponse(
                     dto.videoUrl(),
                     dto.durationMinutes(),
                     dto.orderIndex(),
-                    materials
+                    materials,
+                    dto.quizId()
             );
         }
     }

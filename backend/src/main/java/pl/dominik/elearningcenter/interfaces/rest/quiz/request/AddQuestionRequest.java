@@ -7,7 +7,8 @@ import java.util.List;
 public record AddQuestionRequest(
         String text,
         QuestionType type,
-        Integer orderIndex,
+        int points,
+        int orderIndex,
         List<AnswerRequest> answers
 ) {
     public record AnswerRequest(

@@ -108,6 +108,7 @@ export interface Lesson {
   durationMinutes?: number;
   orderIndex: number;
   materials: Material[];
+  quizId?: number | null;
 }
 
 export interface Section {
@@ -115,6 +116,7 @@ export interface Section {
   title: string;
   orderIndex: number;
   lessons: Lesson[];
+  quizId?: number | null;
 }
 
 export interface FullCourseDetails {
@@ -132,6 +134,7 @@ export interface FullCourseDetails {
   sections: Section[];
   sectionsCount: number;
   totalLessonsCount: number;
+  quizId?: number | null;
 }
 
 export interface PublicSection {
@@ -300,16 +303,21 @@ export interface Quiz {
   id: number;
   title: string;
   passingScore: number;
+  courseId?: number;
+  sectionId?: number;
   lessonId?: number;
   instructorId: number;
   createdAt: string;
   questions: Question[];
   questionsCount: number;
+  maxScore: number;
 }
 
 export interface CreateQuizRequest {
   title: string;
   passingScore: number;
+  courseId?: number;
+  sectionId?: number;
   lessonId?: number;
 }
 

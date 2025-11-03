@@ -6,6 +6,7 @@ import pl.dominik.elearningcenter.domain.course.exception.CourseNotPublishedExce
 import pl.dominik.elearningcenter.domain.course.exception.SectionNotFoundException;
 import pl.dominik.elearningcenter.domain.course.valueobject.CourseDescription;
 import pl.dominik.elearningcenter.domain.course.valueobject.CourseTitle;
+import pl.dominik.elearningcenter.domain.quiz.Quiz;
 import pl.dominik.elearningcenter.domain.shared.AggregateRoot;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Money;
@@ -64,6 +65,12 @@ public class Course extends AggregateRoot<Long> {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orderIndex ASC")
     private List<Section> sections = new ArrayList<>();
+
+    @OneToOne(mappedBy = "course", fetch = FetchType.EAGER)
+    private Quiz quiz;
+
+    @Transient
+    private Long quizId;
 
     @Formula("(SELECT COUNT(*) FROM sections s WHERE s.course_id = id)")
     private int sectionsCount;
@@ -247,5 +254,20 @@ public class Course extends AggregateRoot<Long> {
 
     public List<Section> getSections() {
         return Collections.unmodifiableList(sections);
+    }
+
+    public Long getQuizId() {
+        if (quizId != null) {
+            return quizId;
+        }
+        return quiz != null ? quiz.getId() : null;
+    }
+
+    public void setQuizId(Long quizId) {
+        this.quizId = quizId;
+    }
+
+    public pl.dominik.elearningcenter.domain.quiz.Quiz getQuiz() {
+        return quiz;
     }
 }

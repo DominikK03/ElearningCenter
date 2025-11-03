@@ -7,6 +7,8 @@ public record QuizDTO(
         Long id,
         String title,
         int passingScore,
+        Long courseId,
+        Long sectionId,
         Long lessonId,
         Long instructorId,
         LocalDateTime createdAt,

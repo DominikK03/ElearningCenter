@@ -1,6 +1,8 @@
 package pl.dominik.elearningcenter.domain.course;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Formula;
+import pl.dominik.elearningcenter.domain.quiz.Quiz;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +38,12 @@ public class Lesson {
 
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Material> materials = new ArrayList<>();
+
+    @OneToOne(mappedBy = "lesson", fetch = FetchType.EAGER)
+    private Quiz quiz;
+
+    @Transient
+    private Long quizId;
 
     protected Lesson(){}
 
@@ -118,6 +126,22 @@ public class Lesson {
         }
         this.orderIndex = newOrderIndex;
     }
+
+    public Long getQuizId() {
+        if (quizId != null) {
+            return quizId;
+        }
+        return quiz != null ? quiz.getId() : null;
+    }
+
+    public void setQuizId(Long quizId) {
+        this.quizId = quizId;
+    }
+
+    public Quiz getQuiz() {
+        return quiz;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

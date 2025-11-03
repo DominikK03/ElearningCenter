@@ -32,17 +32,17 @@ public class QuizAttemptRepositoryAdapter implements QuizAttemptRepository {
 
     @Override
     public List<QuizAttempt> findByQuizId(Long quizId) {
-        return jpaRepository.findByQuizId(quizId);
+        return jpaRepository.findByQuizIdOrderByAttemptedAtDesc(quizId);
     }
 
     @Override
     public List<QuizAttempt> findByStudentId(Long studentId) {
-        return jpaRepository.findByStudentId(studentId);
+        return jpaRepository.findByStudentIdOrderByAttemptedAtDesc(studentId);
     }
 
     @Override
     public List<QuizAttempt> findByQuizIdAndStudentId(Long quizId, Long studentId) {
-        return jpaRepository.findByQuizIdAndStudentId(quizId, studentId);
+        return jpaRepository.findByQuizIdAndStudentIdOrderByAttemptedAtDesc(quizId, studentId);
     }
 
     @Override

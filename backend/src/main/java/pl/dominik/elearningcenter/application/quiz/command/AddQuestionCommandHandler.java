@@ -6,6 +6,9 @@ import pl.dominik.elearningcenter.application.quiz.command.AddQuestionCommand;
 import pl.dominik.elearningcenter.domain.quiz.Question;
 import pl.dominik.elearningcenter.domain.quiz.Quiz;
 import pl.dominik.elearningcenter.domain.quiz.QuizRepository;
+import pl.dominik.elearningcenter.domain.quiz.valueobject.Answer;
+
+import java.util.List;
 
 @Service
 public class AddQuestionCommandHandler {
@@ -26,6 +29,14 @@ public class AddQuestionCommandHandler {
                 command.type(),
                 command.orderIndex()
         );
+
+        newQuestion.updatePoints(command.points());
+
+        List<Answer> answers = command.answers().stream()
+                .map(answerInput -> Answer.of(answerInput.text(), answerInput.correct()))
+                .toList();
+        newQuestion.setAnswers(answers);
+
         quiz.addQuestion(newQuestion);
         return newQuestion.getId();
     }

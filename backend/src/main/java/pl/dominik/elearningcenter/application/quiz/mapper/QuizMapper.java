@@ -18,6 +18,8 @@ public class QuizMapper {
                 quiz.getId(),
                 quiz.getTitle(),
                 quiz.getPassingScore(),
+                quiz.getCourseId(),
+                quiz.getSectionId(),
                 quiz.getLessonId(),
                 quiz.getInstructorId(),
                 quiz.getCreatedAt(),
@@ -34,12 +36,30 @@ public class QuizMapper {
                 quiz.getId(),
                 quiz.getTitle(),
                 quiz.getPassingScore(),
+                quiz.getCourseId(),
+                quiz.getSectionId(),
                 quiz.getLessonId(),
                 quiz.getInstructorId(),
                 quiz.getCreatedAt(),
                 quiz.getQuestions().stream()
                         .map(questionMapper::toDtoForStudent)
                         .toList(),
+                quiz.getQuestionsCount(),
+                quiz.calculateMaxScore()
+        );
+    }
+
+    public QuizDTO toLightDto(Quiz quiz) {
+        return new QuizDTO(
+                quiz.getId(),
+                quiz.getTitle(),
+                quiz.getPassingScore(),
+                quiz.getCourseId(),
+                quiz.getSectionId(),
+                quiz.getLessonId(),
+                quiz.getInstructorId(),
+                quiz.getCreatedAt(),
+                java.util.Collections.emptyList(),
                 quiz.getQuestionsCount(),
                 quiz.calculateMaxScore()
         );

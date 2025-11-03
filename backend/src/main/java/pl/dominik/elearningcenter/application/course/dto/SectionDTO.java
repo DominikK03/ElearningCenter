@@ -6,6 +6,7 @@ public record SectionDTO (
         Long id,
         String title,
         Integer orderIndex,
-        List<LessonDTO> lessons
+        List<LessonDTO> lessons,
+        Long quizId
 ){
 }

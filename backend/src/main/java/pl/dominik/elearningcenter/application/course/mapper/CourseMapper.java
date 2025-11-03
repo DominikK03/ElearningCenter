@@ -21,6 +21,11 @@ public class CourseMapper {
             throw new IllegalArgumentException("Course cannot be null");
         }
 
+        // Set quizId if quiz relationship exists
+        if (course.getQuiz() != null) {
+            course.setQuizId(course.getQuiz().getId());
+        }
+
         List<SectionDTO> sections = course.getSections().stream()
                 .map(sectionMapper::toDto)
                 .toList();
@@ -39,13 +44,19 @@ public class CourseMapper {
                 course.getCreatedAt(),
                 sections,
                 course.getSectionsCount(),
-                course.getTotalLessonsCount()
+                course.getTotalLessonsCount(),
+                course.getQuizId()
         );
     }
 
     public CourseDTO toDtoWithSectionsSummary(Course course) {
         if (course == null) {
             throw new IllegalArgumentException("Course cannot be null");
+        }
+
+        // Set quizId if quiz relationship exists
+        if (course.getQuiz() != null) {
+            course.setQuizId(course.getQuiz().getId());
         }
 
         List<SectionDTO> sections = course.getSections().stream()
@@ -66,13 +77,19 @@ public class CourseMapper {
                 course.getCreatedAt(),
                 sections,
                 course.getSectionsCount(),
-                course.getTotalLessonsCount()
+                course.getTotalLessonsCount(),
+                course.getQuizId()
         );
     }
 
     public CourseDTO toDtoSummary(Course course) {
         if (course == null) {
             throw new IllegalArgumentException("Course cannot be null");
+        }
+
+        // Set quizId if quiz relationship exists
+        if (course.getQuiz() != null) {
+            course.setQuizId(course.getQuiz().getId());
         }
 
         return new CourseDTO(
@@ -89,7 +106,8 @@ public class CourseMapper {
                 course.getCreatedAt(),
                 List.of(),
                 course.getSectionsCount(),
-                course.getTotalLessonsCount()
+                course.getTotalLessonsCount(),
+                course.getQuizId()
         );
     }
 }

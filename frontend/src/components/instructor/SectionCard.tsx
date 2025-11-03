@@ -21,6 +21,7 @@ import { CSS } from '@dnd-kit/utilities';
 import Button from '../ui/Button';
 import LessonCard from './LessonCard';
 import { updateLessonsOrder } from '../../services/courseService';
+import { useNavigate } from 'react-router-dom';
 import type { Section, Lesson } from '../../types/api';
 
 interface SectionCardProps {
@@ -48,6 +49,7 @@ export default function SectionCard({
   onManageMaterials,
   onRefresh,
 }: SectionCardProps) {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(true);
   const [isReorderMode, setIsReorderMode] = useState(false);
   const [reorderedLessons, setReorderedLessons] = useState<Lesson[]>([]);
@@ -131,6 +133,24 @@ export default function SectionCard({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Section Quiz Button */}
+            {section.quizId ? (
+              <Button
+                variant="secondary"
+                onClick={() => navigate(`/instructor/quiz/${section.quizId}/manage`)}
+                className="text-sm"
+              >
+                Manage Quiz
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={() => navigate(`/instructor/quiz/create?courseId=${courseId}&sectionId=${section.id}`)}
+                className="text-sm"
+              >
+                + Create Quiz
+              </Button>
+            )}
             {/* Edit/Delete Buttons */}
             <Button
               variant="ghost"
@@ -191,6 +211,8 @@ export default function SectionCard({
                         key={lesson.id}
                         lesson={lesson}
                         index={lessonIndex}
+                        courseId={courseId}
+                        sectionId={section.id}
                         onEdit={(lesson) => onEditLesson(section, lesson)}
                         onDelete={(lesson) => onDeleteLesson(section, lesson)}
                         onManageMaterials={(lesson) => onManageMaterials(section, lesson)}
