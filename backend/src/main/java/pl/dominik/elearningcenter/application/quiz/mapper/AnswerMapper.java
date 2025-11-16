@@ -7,17 +7,19 @@ import pl.dominik.elearningcenter.domain.quiz.valueobject.Answer;
 @Component
 public class AnswerMapper {
 
-    public AnswerDTO toDto(Answer answer) {
+    public AnswerDTO toDto(Answer answer, int index) {
         return new AnswerDTO(
                 answer.getText(),
-                answer.isCorrect()
+                answer.isCorrect(),
+                index
         );
     }
 
-    public AnswerDTO toDtoForStudent(Answer answer) {
+    public AnswerDTO toDtoForStudent(Answer answer, int index) {
         return new AnswerDTO(
                 answer.getText(),
-                false
+                false,
+                index
         );
     }
 }

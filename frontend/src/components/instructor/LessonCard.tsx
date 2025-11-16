@@ -1,10 +1,13 @@
 import { Edit, Trash2, Video, Clock, FileText } from 'lucide-react';
 import Button from '../ui/Button';
+import { useNavigate } from 'react-router-dom';
 import type { Lesson } from '../../types/api';
 
 interface LessonCardProps {
   lesson: Lesson;
   index: number;
+  courseId?: number;
+  sectionId?: number;
   onEdit: (lesson: Lesson) => void;
   onDelete: (lesson: Lesson) => void;
   onManageMaterials?: (lesson: Lesson) => void;
@@ -13,10 +16,13 @@ interface LessonCardProps {
 export default function LessonCard({
   lesson,
   index,
+  courseId,
+  sectionId,
   onEdit,
   onDelete,
   onManageMaterials,
 }: LessonCardProps) {
+  const navigate = useNavigate();
   return (
     <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors">
       <div className="flex-1">
@@ -51,6 +57,26 @@ export default function LessonCard({
       </div>
 
       <div className="flex items-center gap-2">
+        {/* Lesson Quiz Button */}
+        {courseId && sectionId && (
+          lesson.quizId ? (
+            <Button
+              variant="secondary"
+              onClick={() => navigate(`/instructor/quiz/${lesson.quizId}/manage`)}
+              className="text-sm"
+            >
+              Manage Quiz
+            </Button>
+          ) : (
+            <Button
+              variant="secondary"
+              onClick={() => navigate(`/instructor/quiz/create?courseId=${courseId}&sectionId=${sectionId}&lessonId=${lesson.id}`)}
+              className="text-sm"
+            >
+              + Create Quiz
+            </Button>
+          )
+        )}
         {/* Manage Materials Button */}
         {onManageMaterials && (
           <Button

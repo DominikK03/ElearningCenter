@@ -19,9 +19,21 @@ public interface QuizRepository {
 
     List<Quiz> findByInstructorId(Long instructorId);
 
+    List<Quiz> findByCourseId(Long courseId);
+
+    List<Quiz> findBySectionId(Long sectionId);
+
     boolean existsById(Long id);
 
     boolean existsByLessonId(Long lessonId);
+
+    boolean existsByCourseIdOnly(Long courseId);
+
+    boolean existsBySectionIdOnly(Long sectionId);
+
+    Optional<Quiz> findByCourseIdOnly(Long courseId);
+
+    Optional<Quiz> findBySectionIdOnly(Long sectionId);
 
     void delete(Quiz quiz);
 

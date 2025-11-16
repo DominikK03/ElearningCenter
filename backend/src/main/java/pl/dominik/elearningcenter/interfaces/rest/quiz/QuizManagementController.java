@@ -12,9 +12,13 @@ import pl.dominik.elearningcenter.application.quiz.command.DeleteQuizCommandHand
 import pl.dominik.elearningcenter.application.quiz.command.UpdateQuizCommand;
 import pl.dominik.elearningcenter.application.quiz.command.UpdateQuizCommandHandler;
 import pl.dominik.elearningcenter.application.quiz.dto.QuizDTO;
+import pl.dominik.elearningcenter.application.quiz.query.GetCourseQuizzesQuery;
+import pl.dominik.elearningcenter.application.quiz.query.GetCourseQuizzesQueryHandler;
 import pl.dominik.elearningcenter.application.quiz.query.GetQuizDetailsQuery;
 import pl.dominik.elearningcenter.application.quiz.query.GetQuizDetailsQueryHandler;
 import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
+
+import java.util.List;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
 import pl.dominik.elearningcenter.interfaces.rest.quiz.request.CreateQuizRequest;
 import pl.dominik.elearningcenter.interfaces.rest.quiz.request.UpdateQuizRequest;
@@ -32,17 +36,20 @@ public class QuizManagementController {
     private final UpdateQuizCommandHandler updateQuizHandler;
     private final DeleteQuizCommandHandler deleteQuizHandler;
     private final GetQuizDetailsQueryHandler getQuizDetailsHandler;
+    private final GetCourseQuizzesQueryHandler getCourseQuizzesHandler;
 
     public QuizManagementController(
             CreateQuizCommandHandler createQuizHandler,
             UpdateQuizCommandHandler updateQuizHandler,
             DeleteQuizCommandHandler deleteQuizHandler,
-            GetQuizDetailsQueryHandler getQuizDetailsHandler
+            GetQuizDetailsQueryHandler getQuizDetailsHandler,
+            GetCourseQuizzesQueryHandler getCourseQuizzesHandler
     ) {
         this.createQuizHandler = createQuizHandler;
         this.updateQuizHandler = updateQuizHandler;
         this.deleteQuizHandler = deleteQuizHandler;
         this.getQuizDetailsHandler = getQuizDetailsHandler;
+        this.getCourseQuizzesHandler = getCourseQuizzesHandler;
     }
 
     @PostMapping
@@ -54,6 +61,8 @@ public class QuizManagementController {
         CreateQuizCommand command = new CreateQuizCommand(
                 request.title(),
                 request.passingScore(),
+                request.courseId(),
+                request.sectionId(),
                 request.lessonId(),
                 userDetails.getUserId()
         );
@@ -98,5 +107,18 @@ public class QuizManagementController {
         DeleteQuizCommand command = new DeleteQuizCommand(id, userDetails.getUserId());
         deleteQuizHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Quiz deleted successfully"));
+    }
+
+    @GetMapping("/course/{courseId}")
+    @PreAuthorize("hasAnyRole('STUDENT', 'INSTRUCTOR', 'ADMIN')")
+    public ResponseEntity<List<QuizResponse>> getQuizzesByCourse(
+            @PathVariable Long courseId
+    ) {
+        GetCourseQuizzesQuery query = new GetCourseQuizzesQuery(courseId);
+        List<QuizDTO> quizzes = getCourseQuizzesHandler.handle(query);
+        List<QuizResponse> responses = quizzes.stream()
+                .map(QuizResponse::from)
+                .toList();
+        return ResponseEntity.ok(responses);
     }
 }

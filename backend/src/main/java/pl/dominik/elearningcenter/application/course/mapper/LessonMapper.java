@@ -22,6 +22,11 @@ public class LessonMapper {
             throw new IllegalArgumentException("Lesson cannot be null");
         }
 
+        // Set quizId if quiz relationship exists
+        if (lesson.getQuiz() != null) {
+            lesson.setQuizId(lesson.getQuiz().getId());
+        }
+
         List<MaterialDTO> materials = lesson.getMaterials().stream()
                 .map(materialMapper::toDto)
                 .toList();
@@ -33,13 +38,19 @@ public class LessonMapper {
                 lesson.getVideoUrl(),
                 lesson.getDurationMinutes(),
                 lesson.getOrderIndex(),
-                materials
+                materials,
+                lesson.getQuizId()
         );
     }
 
     public LessonDTO toDtoSummary(Lesson lesson) {
         if (lesson == null) {
             throw new IllegalArgumentException("Lesson cannot be null");
+        }
+
+        // Set quizId if quiz relationship exists
+        if (lesson.getQuiz() != null) {
+            lesson.setQuizId(lesson.getQuiz().getId());
         }
 
         return new LessonDTO(
@@ -49,7 +60,8 @@ public class LessonMapper {
                 lesson.getVideoUrl(),
                 lesson.getDurationMinutes(),
                 lesson.getOrderIndex(),
-                List.of()
+                List.of(),
+                lesson.getQuizId()
         );
     }
 }

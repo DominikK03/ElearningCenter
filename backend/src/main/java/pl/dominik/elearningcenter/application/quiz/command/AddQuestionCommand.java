@@ -8,6 +8,7 @@ public record AddQuestionCommand(
         Long quizId,
         String text,
         QuestionType type,
+        int points,
         Integer orderIndex,
         List<AnswerInput> answers,
         Long instructorId

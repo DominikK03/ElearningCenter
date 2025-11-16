@@ -49,6 +49,7 @@ public class QuizQuestionController {
                 quizId,
                 request.text(),
                 request.type(),
+                request.points(),
                 request.orderIndex(),
                 request.answers().stream()
                         .map(a -> new AddQuestionCommand.AnswerInput(a.text(), a.correct()))

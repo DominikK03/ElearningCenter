@@ -19,6 +19,11 @@ import ManageCoursePage from './pages/instructor/ManageCoursePage';
 import MyCoursesPage from './pages/instructor/MyCoursesPage';
 import MyEnrollmentsPage from './pages/student/MyEnrollmentsPage';
 import StudentCourseViewPage from './pages/student/StudentCourseViewPage';
+import CreateQuizPage from './pages/instructor/CreateQuizPage';
+import ManageQuizPage from './pages/instructor/ManageQuizPage';
+import TakeQuizPage from './pages/student/TakeQuizPage';
+import QuizResultPage from './pages/student/QuizResultPage';
+import QuizAttemptsPage from './pages/student/QuizAttemptsPage';
 import NotFoundPage from './pages/error/NotFoundPage';
 import ForbiddenPage from './pages/error/ForbiddenPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -81,6 +86,35 @@ function App() {
             <Route path="/dashboard/course/:id/manage" element={
               <ProtectedRoute allowedRoles={['INSTRUCTOR', 'ADMIN']}>
                 <ManageCoursePage />
+              </ProtectedRoute>
+            } />
+
+            {/* Quiz Routes - Instructor */}
+            <Route path="/instructor/quiz/create" element={
+              <ProtectedRoute allowedRoles={['INSTRUCTOR', 'ADMIN']}>
+                <CreateQuizPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/instructor/quiz/:id/manage" element={
+              <ProtectedRoute allowedRoles={['INSTRUCTOR', 'ADMIN']}>
+                <ManageQuizPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Quiz Routes - Student */}
+            <Route path="/quiz/:id/take" element={
+              <ProtectedRoute allowedRoles={['STUDENT']}>
+                <TakeQuizPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/quiz/:quizId/result/:attemptId" element={
+              <ProtectedRoute allowedRoles={['STUDENT']}>
+                <QuizResultPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/quiz/:id/attempts" element={
+              <ProtectedRoute allowedRoles={['STUDENT']}>
+                <QuizAttemptsPage />
               </ProtectedRoute>
             } />
 

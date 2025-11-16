@@ -111,6 +111,19 @@ export default function ManageCoursePage() {
     };
 
     fetchCourse();
+
+    // Refetch course data when user returns to the page (e.g., after creating a quiz)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && !isLoading) {
+        fetchCourse();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [id, navigate]);
 
   const canManage = user && (user.role === 'ADMIN' || user.role === 'INSTRUCTOR');
@@ -429,6 +442,23 @@ export default function ManageCoursePage() {
               <Button variant="secondary" onClick={() => navigate(`/courses/${id}/edit`)}>
                 Edit Course
               </Button>
+              {course.quizId ? (
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate(`/instructor/quiz/${course.quizId}/manage`)}
+                  title="Manage course quiz"
+                >
+                  Manage Course Quiz
+                </Button>
+              ) : (
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate(`/instructor/quiz/create?courseId=${id}`)}
+                  title="Create a quiz for the entire course"
+                >
+                  + Create Course Quiz
+                </Button>
+              )}
             </div>
           </div>
 
@@ -476,6 +506,7 @@ export default function ManageCoursePage() {
               </p>
             </div>
           </div>
+
         </div>
 
         {/* Sections List */}
@@ -680,6 +711,7 @@ export default function ManageCoursePage() {
           onRefresh={refreshCourse}
         />
       )}
+
     </div>
   );
 }

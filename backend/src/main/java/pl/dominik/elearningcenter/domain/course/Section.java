@@ -1,6 +1,8 @@
 package pl.dominik.elearningcenter.domain.course;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Formula;
+import pl.dominik.elearningcenter.domain.quiz.Quiz;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 
 import java.util.ArrayList;
@@ -30,6 +32,12 @@ public class Section {
     @OrderBy("orderIndex ASC")
     @org.hibernate.annotations.BatchSize(size = 10)
     private List<Lesson> lessons = new ArrayList<>();
+
+    @OneToOne(mappedBy = "section", fetch = FetchType.EAGER)
+    private Quiz quiz;
+
+    @Transient
+    private Long quizId;
 
     protected Section(){}
 
@@ -120,6 +128,21 @@ public class Section {
 
     public List<Lesson> getLessons() {
         return Collections.unmodifiableList(lessons);
+    }
+
+    public Long getQuizId() {
+        if (quizId != null) {
+            return quizId;
+        }
+        return quiz != null ? quiz.getId() : null;
+    }
+
+    public void setQuizId(Long quizId) {
+        this.quizId = quizId;
+    }
+
+    public Quiz getQuiz() {
+        return quiz;
     }
 
     @Override

@@ -9,6 +9,7 @@ public record LessonDTO(
         String videoUrl,
         Integer durationMinutes,
         Integer orderIndex,
-        List<MaterialDTO> materials
+        List<MaterialDTO> materials,
+        Long quizId
 ) {
 }

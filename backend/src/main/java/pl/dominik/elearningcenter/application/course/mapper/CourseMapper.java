@@ -39,7 +39,8 @@ public class CourseMapper {
                 course.getCreatedAt(),
                 sections,
                 course.getSectionsCount(),
-                course.getTotalLessonsCount()
+                course.getTotalLessonsCount(),
+                course.getQuizId()
         );
     }
 
@@ -66,7 +67,8 @@ public class CourseMapper {
                 course.getCreatedAt(),
                 sections,
                 course.getSectionsCount(),
-                course.getTotalLessonsCount()
+                course.getTotalLessonsCount(),
+                course.getQuizId()
         );
     }
 
@@ -89,7 +91,8 @@ public class CourseMapper {
                 course.getCreatedAt(),
                 List.of(),
                 course.getSectionsCount(),
-                course.getTotalLessonsCount()
+                course.getTotalLessonsCount(),
+                course.getQuizId()
         );
     }
 }

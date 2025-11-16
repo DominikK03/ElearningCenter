@@ -20,6 +20,7 @@ public record CourseDTO(
         LocalDateTime createdAt,
         List<SectionDTO> sections,
         int sectionsCount,
-        int totalLessonsCount
+        int totalLessonsCount,
+        Long quizId
 ) {
 }

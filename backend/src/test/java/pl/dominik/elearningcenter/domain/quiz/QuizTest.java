@@ -1,6 +1,8 @@
 package pl.dominik.elearningcenter.domain.quiz;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
+import pl.dominik.elearningcenter.domain.course.Lesson;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 
 import java.util.List;
@@ -27,7 +29,10 @@ class QuizTest {
 
     @Test
     void shouldCreateQuizWithLessonId() {
-        Quiz quiz = Quiz.create("Test", 70, 1L, 5L);
+        Lesson lesson = new Lesson("Test Lesson", "Content", 0);
+        ReflectionTestUtils.setField(lesson, "id", 5L);
+
+        Quiz quiz = Quiz.create("Test", 70, 1L, null, null, lesson);
 
         assertThat(quiz.getLessonId()).isEqualTo(5L);
         assertThat(quiz.isAssignedToLesson()).isTrue();
@@ -260,7 +265,10 @@ class QuizTest {
     void shouldAssignToLesson() {
         Quiz quiz = Quiz.create("Test", 70, 1L);
 
-        quiz.assingToLesson(5L);
+        Lesson lesson = new Lesson("Test Lesson", "Content", 0);
+        ReflectionTestUtils.setField(lesson, "id", 5L);
+
+        quiz.assignToLesson(lesson);
 
         assertThat(quiz.getLessonId()).isEqualTo(5L);
         assertThat(quiz.isAssignedToLesson()).isTrue();
@@ -268,9 +276,12 @@ class QuizTest {
 
     @Test
     void shouldUnassignFromLesson() {
-        Quiz quiz = Quiz.create("Test", 70, 1L, 5L);
+        Lesson lesson = new Lesson("Test Lesson", "Content", 0);
+        ReflectionTestUtils.setField(lesson, "id", 5L);
 
-        quiz.unassignFromLesson();
+        Quiz quiz = Quiz.create("Test", 70, 1L, null, null, lesson);
+
+        quiz.unassign();
 
         assertThat(quiz.getLessonId()).isNull();
         assertThat(quiz.isAssignedToLesson()).isFalse();

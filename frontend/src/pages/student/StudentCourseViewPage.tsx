@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Check, Circle, Play, BookOpen, Download, ArrowLeft } from 'lucide-react';
+import { Check, Circle, Play, BookOpen, Download, ArrowLeft, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFullCourseDetails } from '../../services/courseService';
 import { getStudentEnrollments, markLessonAsCompleted, getCompletedLessons } from '../../services/enrollmentService';
+import { getCourseQuizzes } from '../../services/quizService';
 import Button from '../../components/ui/Button';
 import Skeleton from '../../components/ui/Skeleton';
-import type { FullCourseDetails, Enrollment, Lesson, Section } from '../../types/api';
+import type { FullCourseDetails, Enrollment, Lesson, Section, Quiz } from '../../types/api';
 
 export default function StudentCourseViewPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +20,7 @@ export default function StudentCourseViewPage() {
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [currentSection, setCurrentSection] = useState<Section | null>(null);
   const [completedLessons, setCompletedLessons] = useState<Set<number>>(new Set());
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [markingComplete, setMarkingComplete] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set());
@@ -34,12 +36,14 @@ export default function StudentCourseViewPage() {
 
     try {
       setLoading(true);
-      const [courseResponse, enrollmentsData] = await Promise.all([
+      const [courseResponse, enrollmentsData, quizzesData] = await Promise.all([
         getFullCourseDetails(parseInt(id)),
         getStudentEnrollments(user.id),
+        getCourseQuizzes(parseInt(id)),
       ]);
 
       setCourse(courseResponse);
+      setQuizzes(quizzesData || []);
 
       const currentEnrollment = enrollmentsData?.find(
         (e) => e.courseId === parseInt(id) && (e.status === 'ACTIVE' || e.status === 'COMPLETED')
@@ -264,11 +268,42 @@ export default function StudentCourseViewPage() {
                           <span className="text-sm text-gray-300 flex-1">{lesson.title}</span>
                         </button>
                       ))}
+
+                      {/* Section Quiz */}
+                      {quizzes.filter(q => q.sectionId === section.id && !q.lessonId).map((quiz) => (
+                        <button
+                          key={quiz.id}
+                          onClick={() => navigate(`/quiz/${quiz.id}/take`)}
+                          className="w-full flex items-center gap-3 p-3 bg-purple-900/20 border border-purple-700/50 hover:bg-purple-900/30 rounded-lg transition-colors mt-2"
+                        >
+                          <FileText className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                          <div className="flex-1 text-left">
+                            <div className="text-xs font-medium text-purple-300">{quiz.title}</div>
+                            <div className="text-xs text-gray-500">Section Quiz • {quiz.questionsCount} questions</div>
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
               ))}
             </div>
+
+            {/* Course Quiz */}
+            {quizzes.filter(q => q.courseId && !q.sectionId && !q.lessonId).map((quiz) => (
+              <div key={quiz.id} className="mt-4 pt-4 border-t border-gray-800">
+                <button
+                  onClick={() => navigate(`/quiz/${quiz.id}/take`)}
+                  className="w-full flex items-center gap-3 p-4 bg-purple-900/20 border border-purple-700/50 hover:bg-purple-900/30 rounded-lg transition-colors"
+                >
+                  <FileText className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                  <div className="flex-1 text-left">
+                    <div className="text-sm font-medium text-purple-300">{quiz.title}</div>
+                    <div className="text-xs text-gray-400 mt-1">Course Quiz • {quiz.questionsCount} questions</div>
+                  </div>
+                </button>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -325,6 +360,30 @@ export default function StudentCourseViewPage() {
                   </div>
                 </div>
               )}
+
+              {/* Lesson Quiz */}
+              {currentLesson && quizzes.filter(q => q.lessonId === currentLesson.id).map((quiz) => (
+                <div key={quiz.id} className="bg-purple-900/20 border border-purple-700 rounded-xl p-6 mb-6">
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 bg-purple-800/50 rounded-lg">
+                      <FileText className="w-6 h-6 text-purple-300" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-purple-100 mb-2">{quiz.title}</h3>
+                      <p className="text-sm text-gray-400 mb-4">
+                        Test your knowledge with {quiz.questionsCount} questions. Passing score: {quiz.passingScore}%
+                      </p>
+                      <Button
+                        variant="primary"
+                        onClick={() => navigate(`/quiz/${quiz.id}/take`)}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        Take Quiz
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
 
               <div className="flex gap-4">
                 {!isLessonCompleted(currentLesson.id) && (

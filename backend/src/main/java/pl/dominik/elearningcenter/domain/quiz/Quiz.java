@@ -1,6 +1,9 @@
 package pl.dominik.elearningcenter.domain.quiz;
 
 import jakarta.persistence.*;
+import pl.dominik.elearningcenter.domain.course.Course;
+import pl.dominik.elearningcenter.domain.course.Lesson;
+import pl.dominik.elearningcenter.domain.course.Section;
 import pl.dominik.elearningcenter.domain.shared.AggregateRoot;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.quiz.valueobject.StudentAnswer;
@@ -22,8 +25,17 @@ public class Quiz extends AggregateRoot<Long> {
     @Column(name = "passing_score", nullable = false)
     private int passingScore;
 
-    @Column(name = "lesson_id")
-    private Long lessonId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id")
+    private Course course;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "section_id", unique = true)
+    private Section section;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lesson_id", unique = true)
+    private Lesson lesson;
 
     @Column(name = "instructor_id", nullable = false)
     private Long instructorId;
@@ -38,7 +50,10 @@ public class Quiz extends AggregateRoot<Long> {
         super();
     }
 
-    private Quiz(String title, int passingScore, Long instructorId, Long lessonId) {
+    private Quiz(String title, int passingScore, Long instructorId,
+                 pl.dominik.elearningcenter.domain.course.Course course,
+                 pl.dominik.elearningcenter.domain.course.Section section,
+                 pl.dominik.elearningcenter.domain.course.Lesson lesson) {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("Quiz title cannot be empty");
         }
@@ -55,16 +70,21 @@ public class Quiz extends AggregateRoot<Long> {
         this.title = title;
         this.passingScore = passingScore;
         this.instructorId = instructorId;
-        this.lessonId = lessonId;
+        this.course = course;
+        this.section = section;
+        this.lesson = lesson;
         this.createdAt = LocalDateTime.now();
     }
 
-    public static Quiz create(String title, int passingScore, Long instructorId, Long lessonId) {
-        return new Quiz(title, passingScore, instructorId, lessonId);
+    public static Quiz create(String title, int passingScore, Long instructorId,
+                              Course course,
+                              Section section,
+                              Lesson lesson) {
+        return new Quiz(title, passingScore, instructorId, course, section, lesson);
     }
 
     public static Quiz create(String title, int passingScore, Long instructorId) {
-        return new Quiz(title, passingScore, instructorId, null);
+        return new Quiz(title, passingScore, instructorId, null, null, null);
     }
 
     public void addQuestion(Question question) {
@@ -105,12 +125,25 @@ public class Quiz extends AggregateRoot<Long> {
         this.passingScore = newPassingScore;
     }
 
-    public void assingToLesson(Long lessonId) {
-        this.lessonId = lessonId;
+    public void assignToCourse(Course course) {
+        this.course = course;
+        this.section = null;
+        this.lesson = null;
     }
 
-    public void unassignFromLesson() {
-        this.lessonId = null;
+    public void assignToSection(Section section) {
+        this.section = section;
+        this.lesson = null;
+    }
+
+    public void assignToLesson(Lesson lesson) {
+        this.lesson = lesson;
+    }
+
+    public void unassign() {
+        this.course = null;
+        this.section = null;
+        this.lesson = null;
     }
 
     public int calculateMaxScore() {
@@ -156,12 +189,28 @@ public class Quiz extends AggregateRoot<Long> {
         }
     }
 
+    public boolean isAssignedToCourse() {
+        return course != null;
+    }
+
+    public boolean isAssignedToCourse(Long courseId) {
+        return this.course != null && this.course.getId().equals(courseId);
+    }
+
+    public boolean isAssignedToSection() {
+        return section != null;
+    }
+
+    public boolean isAssignedToSection(Long sectionId) {
+        return this.section != null && this.section.getId().equals(sectionId);
+    }
+
     public boolean isAssignedToLesson() {
-        return lessonId != null;
+        return lesson != null;
     }
 
     public boolean isAssignedToLesson(Long lessonId) {
-        return this.lessonId != null && this.lessonId.equals(lessonId);
+        return this.lesson != null && this.lesson.getId().equals(lessonId);
     }
 
     public int getQuestionsCount() {
@@ -176,8 +225,28 @@ public class Quiz extends AggregateRoot<Long> {
         return passingScore;
     }
 
+    public Long getCourseId() {
+        return course != null ? course.getId() : null;
+    }
+
+    public Long getSectionId() {
+        return section != null ? section.getId() : null;
+    }
+
     public Long getLessonId() {
-        return lessonId;
+        return lesson != null ? lesson.getId() : null;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public Section getSection() {
+        return section;
+    }
+
+    public Lesson getLesson() {
+        return lesson;
     }
 
     public Long getInstructorId() {

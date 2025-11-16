@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 interface QuizAttemptJpaRepository extends JpaRepository<QuizAttempt, Long> {
-    List<QuizAttempt> findByQuizId(Long quizId);
-    List<QuizAttempt> findByStudentId(Long studentId);
-    List<QuizAttempt> findByQuizIdAndStudentId(Long quizId, Long studentId);
+    List<QuizAttempt> findByQuizIdOrderByAttemptedAtDesc(Long quizId);
+    List<QuizAttempt> findByStudentIdOrderByAttemptedAtDesc(Long studentId);
+    List<QuizAttempt> findByQuizIdAndStudentIdOrderByAttemptedAtDesc(Long quizId, Long studentId);
 
     @Query("SELECT qa from QuizAttempt qa where  qa.quizId = :quizId AND qa.studentId = :studentId order by qa.score desc limit 1")
     Optional<QuizAttempt> findBestAttempt(@Param("quizId") Long quizId, @Param("studentId") Long studentId);

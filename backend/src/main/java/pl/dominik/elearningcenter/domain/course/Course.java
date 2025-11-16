@@ -6,6 +6,7 @@ import pl.dominik.elearningcenter.domain.course.exception.CourseNotPublishedExce
 import pl.dominik.elearningcenter.domain.course.exception.SectionNotFoundException;
 import pl.dominik.elearningcenter.domain.course.valueobject.CourseDescription;
 import pl.dominik.elearningcenter.domain.course.valueobject.CourseTitle;
+import pl.dominik.elearningcenter.domain.quiz.Quiz;
 import pl.dominik.elearningcenter.domain.shared.AggregateRoot;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Money;
@@ -64,6 +65,9 @@ public class Course extends AggregateRoot<Long> {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orderIndex ASC")
     private List<Section> sections = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    private List<Quiz> quizzes = new ArrayList<>();
 
     @Formula("(SELECT COUNT(*) FROM sections s WHERE s.course_id = id)")
     private int sectionsCount;
@@ -247,5 +251,21 @@ public class Course extends AggregateRoot<Long> {
 
     public List<Section> getSections() {
         return Collections.unmodifiableList(sections);
+    }
+
+    public List<Quiz> getQuizzes() {
+        return Collections.unmodifiableList(quizzes);
+    }
+
+    private Quiz findCourseLevelQuiz() {
+        return quizzes.stream()
+                .filter(quiz -> !quiz.isAssignedToSection() && !quiz.isAssignedToLesson())
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Long getQuizId() {
+        Quiz courseLevelQuiz = findCourseLevelQuiz();
+        return courseLevelQuiz != null ? courseLevelQuiz.getId() : null;
     }
 }
