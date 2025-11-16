@@ -11,6 +11,7 @@ import ResendVerificationPage from './pages/auth/ResendVerificationPage';
 import RequestPasswordResetPage from './pages/auth/RequestPasswordResetPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
+import BalancePage from './pages/dashboard/BalancePage';
 import ProfilePage from './pages/profile/ProfilePage';
 import AdminPanelPage from './pages/admin/AdminPanelPage';
 import CreateCoursePage from './pages/instructor/CreateCoursePage';
@@ -56,6 +57,7 @@ function App() {
           }>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/balance" element={<BalancePage />} />
 
             <Route path="/my-courses" element={
               <ProtectedRoute allowedRoles={['STUDENT']}>

@@ -12,7 +12,8 @@ import {
   Users,
   BarChart3,
   PlusCircle,
-  Settings
+  Settings,
+  Wallet
 } from 'lucide-react';
 
 interface NavItem {
@@ -40,6 +41,7 @@ function DashboardLayout() {
 
     const commonItems: NavItem[] = [
       { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
+      { label: 'Balance', path: '/balance', icon: <Wallet className="h-5 w-5" /> },
     ];
 
     const roleSpecificItems: Record<string, NavItem[]> = {
