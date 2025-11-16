@@ -21,11 +21,6 @@ public class CourseMapper {
             throw new IllegalArgumentException("Course cannot be null");
         }
 
-        // Set quizId if quiz relationship exists
-        if (course.getQuiz() != null) {
-            course.setQuizId(course.getQuiz().getId());
-        }
-
         List<SectionDTO> sections = course.getSections().stream()
                 .map(sectionMapper::toDto)
                 .toList();
@@ -54,11 +49,6 @@ public class CourseMapper {
             throw new IllegalArgumentException("Course cannot be null");
         }
 
-        // Set quizId if quiz relationship exists
-        if (course.getQuiz() != null) {
-            course.setQuizId(course.getQuiz().getId());
-        }
-
         List<SectionDTO> sections = course.getSections().stream()
                 .map(sectionMapper::toDtoSummary)  // Lessons without materials
                 .toList();
@@ -85,11 +75,6 @@ public class CourseMapper {
     public CourseDTO toDtoSummary(Course course) {
         if (course == null) {
             throw new IllegalArgumentException("Course cannot be null");
-        }
-
-        // Set quizId if quiz relationship exists
-        if (course.getQuiz() != null) {
-            course.setQuizId(course.getQuiz().getId());
         }
 
         return new CourseDTO(

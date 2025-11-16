@@ -23,7 +23,7 @@ public class CreateQuizCommandHandler {
     @Transactional
     public Long handle(CreateQuizCommand command) {
         Course course = null;
-        Section section = null;
+        Section sectionForQuiz = null;
         Lesson lesson = null;
 
         if (command.lessonId() != null) {
@@ -32,15 +32,16 @@ public class CreateQuizCommandHandler {
             }
             course = courseRepository.findWithSectionsById(command.courseId())
                     .orElseThrow(() -> new IllegalArgumentException("Course not found: " + command.courseId()));
-            section = course.findSection(command.sectionId());
+            Section section = course.findSection(command.sectionId());
             lesson = section.findLesson(command.lessonId());
+            sectionForQuiz = null; // lesson-level quizzes should not occupy section slot
         } else if (command.sectionId() != null) {
             if (quizRepository.existsBySectionIdOnly(command.sectionId())) {
                 throw new IllegalStateException("Quiz already exists for this section");
             }
             course = courseRepository.findWithSectionsById(command.courseId())
                     .orElseThrow(() -> new IllegalArgumentException("Course not found: " + command.courseId()));
-            section = course.findSection(command.sectionId());
+            sectionForQuiz = course.findSection(command.sectionId());
         } else if (command.courseId() != null) {
             if (quizRepository.existsByCourseIdOnly(command.courseId())) {
                 throw new IllegalStateException("Quiz already exists for this course");
@@ -53,7 +54,7 @@ public class CreateQuizCommandHandler {
                 command.passingScore(),
                 command.instructorId(),
                 course,
-                section,
+                sectionForQuiz,
                 lesson
         );
         quizRepository.save(quiz);

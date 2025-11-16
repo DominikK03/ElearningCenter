@@ -29,12 +29,12 @@ public class Quiz extends AggregateRoot<Long> {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "section_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "section_id", unique = true)
     private Section section;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lesson_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lesson_id", unique = true)
     private Lesson lesson;
 
     @Column(name = "instructor_id", nullable = false)

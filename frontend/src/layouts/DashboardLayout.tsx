@@ -100,9 +100,9 @@ function DashboardLayout() {
                     <p className="text-xs text-gray-400">{user.role}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-gray-400">Balance</p>
+                    <p className="text-xs text-gray-400">Balance (PLN)</p>
                     <p className="text-sm font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-                      ${user.balance.toFixed(2)}
+                      PLN {user.balance.toFixed(2)}
                     </p>
                   </div>
                 </div>

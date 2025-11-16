@@ -128,7 +128,7 @@ export default function ProfilePage() {
       await userService.addBalance(user.id, { amount: Number(data.amount) });
       await checkAuth();
 
-      setSuccessMessage(`Successfully added $${data.amount} to your balance!`);
+      setSuccessMessage(`Successfully added ${Number(data.amount).toFixed(2)} PLN to your balance!`);
       resetBalance();
       setShowAddBalanceForm(false);
 
@@ -255,9 +255,9 @@ export default function ProfilePage() {
               <div className="flex items-center gap-4 p-4 bg-gray-900/50 rounded-xl">
                 <Wallet className="h-5 w-5 text-green-400" />
                 <div>
-                  <p className="text-sm text-gray-400">Account Balance</p>
+                  <p className="text-sm text-gray-400">Account Balance (PLN)</p>
                   <p className="text-lg font-semibold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-                    ${user.balance.toFixed(2)}
+                    PLN {user.balance.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -357,7 +357,7 @@ export default function ProfilePage() {
           {showAddBalanceForm ? (
             <form onSubmit={handleSubmitBalance(onSubmitBalance)} className="space-y-4">
               <Input
-                label="Amount to Add ($)"
+                label="Amount to Add (PLN)"
                 type="number"
                 step="0.01"
                 placeholder="0.00"
@@ -394,9 +394,9 @@ export default function ProfilePage() {
             <div className="p-4 bg-gray-900/50 rounded-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Current Balance</p>
+                  <p className="text-sm text-gray-400">Current Balance (PLN)</p>
                   <p className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent mt-2">
-                    ${user.balance.toFixed(2)}
+                    PLN {user.balance.toFixed(2)}
                   </p>
                 </div>
                 <Wallet className="h-12 w-12 text-green-400 opacity-50" />

@@ -24,7 +24,7 @@ import EnrollmentConfirmDialog from '../../components/student/EnrollmentConfirmD
 export default function CourseDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, checkAuth } = useAuth();
 
   const [course, setCourse] = useState<PublicCourseDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,6 +73,7 @@ export default function CourseDetailsPage() {
     try {
       setIsEnrolling(true);
       await enrollInCourse({ studentId: user.id, courseId: course.id });
+      await checkAuth(); // refresh balance after successful purchase
       toast.success('Successfully enrolled in course!');
       setShowEnrollDialog(false);
       navigate(`/dashboard/course/${course.id}`);

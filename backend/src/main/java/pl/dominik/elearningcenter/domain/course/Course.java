@@ -66,11 +66,8 @@ public class Course extends AggregateRoot<Long> {
     @OrderBy("orderIndex ASC")
     private List<Section> sections = new ArrayList<>();
 
-    @OneToOne(mappedBy = "course", fetch = FetchType.EAGER)
-    private Quiz quiz;
-
-    @Transient
-    private Long quizId;
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    private List<Quiz> quizzes = new ArrayList<>();
 
     @Formula("(SELECT COUNT(*) FROM sections s WHERE s.course_id = id)")
     private int sectionsCount;
@@ -256,18 +253,19 @@ public class Course extends AggregateRoot<Long> {
         return Collections.unmodifiableList(sections);
     }
 
+    public List<Quiz> getQuizzes() {
+        return Collections.unmodifiableList(quizzes);
+    }
+
+    private Quiz findCourseLevelQuiz() {
+        return quizzes.stream()
+                .filter(quiz -> !quiz.isAssignedToSection() && !quiz.isAssignedToLesson())
+                .findFirst()
+                .orElse(null);
+    }
+
     public Long getQuizId() {
-        if (quizId != null) {
-            return quizId;
-        }
-        return quiz != null ? quiz.getId() : null;
-    }
-
-    public void setQuizId(Long quizId) {
-        this.quizId = quizId;
-    }
-
-    public pl.dominik.elearningcenter.domain.quiz.Quiz getQuiz() {
-        return quiz;
+        Quiz courseLevelQuiz = findCourseLevelQuiz();
+        return courseLevelQuiz != null ? courseLevelQuiz.getId() : null;
     }
 }
