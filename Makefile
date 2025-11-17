@@ -17,7 +17,9 @@ up: ## Uruchom aplikację w tle
 	@echo "${GREEN}Uruchamianie aplikacji...${RESET}"
 	docker-compose up -d
 	@echo "${GREEN}Aplikacja uruchomiona!${RESET}"
-	@echo "Aplikacja: http://localhost:8080"
+	@echo "Frontend: http://localhost:3000"
+	@echo "Backend: http://localhost:8080"
+	@echo "SWAGGER: http://localhost:8080"
 	@echo "RabbitMQ Management: http://localhost:15672"
 
 up-build: ## Zbuduj i uruchom aplikację

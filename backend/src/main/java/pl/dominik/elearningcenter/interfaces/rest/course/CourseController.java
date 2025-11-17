@@ -23,6 +23,7 @@ import pl.dominik.elearningcenter.application.course.dto.PagedCoursesDTO;
 import pl.dominik.elearningcenter.application.course.dto.PagedPublicCoursesDTO;
 import pl.dominik.elearningcenter.application.course.dto.CourseDTO;
 import pl.dominik.elearningcenter.domain.course.CourseLevel;
+import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.application.course.command.CreateCourseCommand;
 import pl.dominik.elearningcenter.application.course.command.UpdateCourseCommand;
 import pl.dominik.elearningcenter.application.course.command.DeleteCourseCommand;
@@ -35,6 +36,7 @@ import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.request.CreateCourseRequest;
 import pl.dominik.elearningcenter.interfaces.rest.course.request.UpdateCourseRequest;
+import pl.dominik.elearningcenter.interfaces.rest.course.request.CourseModerationRequest;
 import pl.dominik.elearningcenter.interfaces.rest.course.response.PagedCoursesResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.response.PublicCourseDetailsResponse;
 import pl.dominik.elearningcenter.interfaces.rest.course.response.PagedPublicCoursesResponse;
@@ -130,7 +132,12 @@ public class CourseController {
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        PublishCourseCommand command = new PublishCourseCommand(id, userDetails.getUserId());
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (isAdmin) {
+            throw new DomainException("Administrators cannot publish courses");
+        }
+        PublishCourseCommand command = new PublishCourseCommand(id, userDetails.getUserId(), false);
         CourseDTO courseDTO = publishCourseCommandHandler.handle(command);
         PublishCourseResponse response = PublishCourseResponse.from(courseDTO);
         return ResponseEntity.ok(response);
@@ -140,9 +147,21 @@ public class CourseController {
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<AckResponse> unpublishCourse(
             @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails currentUser
+            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @RequestBody(required = false) CourseModerationRequest moderationRequest
     ) {
-        UnpublishCourseCommand command = new UnpublishCourseCommand(id, currentUser.getUserId());
+        boolean isAdmin = currentUser.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        String reason = moderationRequest != null ? moderationRequest.reason() : null;
+        if (isAdmin && (reason == null || reason.isBlank())) {
+            throw new DomainException("Reason is required when administrator unpublishes a course");
+        }
+        UnpublishCourseCommand command = new UnpublishCourseCommand(
+                id,
+                currentUser.getUserId(),
+                isAdmin,
+                reason
+        );
         unpublishCourseCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Course unpublished successfully"));
     }
@@ -172,11 +191,20 @@ public class CourseController {
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<AckResponse> deleteCourse(
             @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody(required = false) CourseModerationRequest moderationRequest
     ) {
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        String reason = moderationRequest != null ? moderationRequest.reason() : null;
+        if (isAdmin && (reason == null || reason.isBlank())) {
+            throw new DomainException("Reason is required when administrator deletes a course");
+        }
         DeleteCourseCommand command = new DeleteCourseCommand(
                 id,
-                userDetails.getUserId()
+                userDetails.getUserId(),
+                isAdmin,
+                reason
         );
 
         deleteCourseCommandHandler.handle(command);

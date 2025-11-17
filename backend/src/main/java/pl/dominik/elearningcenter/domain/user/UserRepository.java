@@ -21,6 +21,7 @@ public interface UserRepository {
     boolean existsByUsername(Username username);
     boolean existsByEmail(Email email);
     void delete(User user);
+    long count();
     default User findByIdOrThrow(Long userId){
         return findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));

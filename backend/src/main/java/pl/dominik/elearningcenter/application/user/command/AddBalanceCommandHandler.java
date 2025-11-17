@@ -5,14 +5,19 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Money;
 import pl.dominik.elearningcenter.domain.user.User;
 import pl.dominik.elearningcenter.domain.user.UserRepository;
+import pl.dominik.elearningcenter.domain.wallet.WalletTransaction;
+import pl.dominik.elearningcenter.domain.wallet.WalletTransactionRepository;
 
 @Service
 public class AddBalanceCommandHandler {
 
     private final UserRepository userRepository;
+    private final WalletTransactionRepository walletTransactionRepository;
 
-    public AddBalanceCommandHandler(UserRepository userRepository) {
+    public AddBalanceCommandHandler(UserRepository userRepository,
+                                    WalletTransactionRepository walletTransactionRepository) {
         this.userRepository = userRepository;
+        this.walletTransactionRepository = walletTransactionRepository;
     }
 
     @Transactional
@@ -23,5 +28,14 @@ public class AddBalanceCommandHandler {
         user.addBalance(amount);
 
         userRepository.save(user);
+        walletTransactionRepository.save(
+                WalletTransaction.credit(
+                        user.getId(),
+                        amount.getAmount(),
+                        amount.getCurrencyCode(),
+                        "Balance top-up",
+                        null
+                )
+        );
     }
 }

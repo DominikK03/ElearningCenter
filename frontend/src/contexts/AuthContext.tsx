@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { userService, handleApiError } from '../services';
 import type { User, LoginRequest, RegisterRequest } from '../types/api';
 import type { ApiErrorDetails } from '../services/api';
+import { tokenStorage } from '../utils/tokenStorage';
 
 
 interface AuthContextType {
@@ -35,6 +36,12 @@ function AuthProvider({ children }: AuthProviderProps) {
       setLoading(true);
       setError(null);
 
+      if (!tokenStorage.hasTokens()) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       const apiResponse = await userService.getCurrentUser();
       const userData = (apiResponse as unknown as { data?: User }).data || apiResponse;
 
@@ -46,6 +53,7 @@ function AuthProvider({ children }: AuthProviderProps) {
     } catch (err) {
       const error = err as { response?: { status?: number } };
       if (error.response?.status === 403 || error.response?.status === 401) {
+        tokenStorage.clearTokens();
         setUser(null);
         setLoading(false);
         return;

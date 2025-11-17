@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import type { ApiResponse } from '../types/api';
+import type { ApiResponse, AuthenticationResponse, RefreshTokenRequest } from '../types/api';
+import { tokenStorage } from '../utils/tokenStorage';
 
 // ============================================
 // Axios Instance Configuration
@@ -14,15 +15,30 @@ export const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
 });
 
+let isRefreshing = false;
+let refreshSubscribers: Array<(token: string) => void> = [];
+
+const onRefreshed = (token: string) => {
+  refreshSubscribers.forEach((callback) => callback(token));
+  refreshSubscribers = [];
+};
+
+const addRefreshSubscriber = (callback: (token: string) => void) => {
+  refreshSubscribers.push(callback);
+};
+
 // ============================================
-// Request Interceptor
+// Request Interceptor - Add JWT Token
 // ============================================
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    const token = tokenStorage.getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error: AxiosError) => {
@@ -31,14 +47,75 @@ apiClient.interceptors.request.use(
 );
 
 // ============================================
-// Response Interceptor
+// Response Interceptor - Handle Token Refresh
 // ============================================
 
 apiClient.interceptors.response.use(
   (response: AxiosResponse<ApiResponse>) => {
     return response;
   },
-  (error: AxiosError<ApiResponse>) => {
+  async (error: AxiosError<ApiResponse>) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+    // If error is 401 and we haven't retried yet
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      // Skip refresh for login/register endpoints
+      if (
+        originalRequest.url?.includes('/login') ||
+        originalRequest.url?.includes('/register') ||
+        originalRequest.url?.includes('/refresh')
+      ) {
+        return Promise.reject(error);
+      }
+
+      if (isRefreshing) {
+        // Wait for the token to be refreshed
+        return new Promise((resolve) => {
+          addRefreshSubscriber((token: string) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
+            resolve(apiClient(originalRequest));
+          });
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      const refreshToken = tokenStorage.getRefreshToken();
+      if (!refreshToken) {
+        tokenStorage.clearTokens();
+        isRefreshing = false;
+        return Promise.reject(error);
+      }
+
+      try {
+        const response = await axios.post<AuthenticationResponse>(
+          `${API_BASE_URL}/auth/refresh`,
+          { refreshToken } as RefreshTokenRequest
+        );
+
+        const { accessToken, refreshToken: newRefreshToken } = response.data;
+        tokenStorage.setAccessToken(accessToken);
+        tokenStorage.setRefreshToken(newRefreshToken);
+
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        }
+
+        onRefreshed(accessToken);
+        isRefreshing = false;
+
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        tokenStorage.clearTokens();
+        isRefreshing = false;
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
+    }
+
     return Promise.reject(error);
   }
 );

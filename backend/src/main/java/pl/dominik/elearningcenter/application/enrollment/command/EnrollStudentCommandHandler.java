@@ -1,5 +1,6 @@
 package pl.dominik.elearningcenter.application.enrollment.command;
 
+import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dominik.elearningcenter.application.enrollment.dto.EnrollmentDTO;
@@ -11,23 +12,31 @@ import pl.dominik.elearningcenter.domain.course.exception.CourseNotPublishedExce
 import pl.dominik.elearningcenter.domain.enrollment.Enrollment;
 import pl.dominik.elearningcenter.domain.enrollment.EnrollmentRepository;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
+import pl.dominik.elearningcenter.domain.shared.valueobject.Money;
+import pl.dominik.elearningcenter.domain.user.User;
+import pl.dominik.elearningcenter.domain.user.UserRepository;
+import pl.dominik.elearningcenter.domain.wallet.WalletTransaction;
+import pl.dominik.elearningcenter.domain.wallet.WalletTransactionRepository;
 
 @Service
 public class EnrollStudentCommandHandler {
     private final EnrollmentRepository enrollmentRepository;
     private final CourseRepository courseRepository;
-    private final pl.dominik.elearningcenter.domain.user.UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final WalletTransactionRepository walletTransactionRepository;
     private final EnrollmentMapper enrollmentMapper;
 
     public EnrollStudentCommandHandler(
             EnrollmentRepository enrollmentRepository,
             CourseRepository courseRepository,
-            pl.dominik.elearningcenter.domain.user.UserRepository userRepository,
+            UserRepository userRepository,
+            WalletTransactionRepository walletTransactionRepository,
             EnrollmentMapper enrollmentMapper
     ) {
         this.enrollmentRepository = enrollmentRepository;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
+        this.walletTransactionRepository = walletTransactionRepository;
         this.enrollmentMapper = enrollmentMapper;
     }
 
@@ -44,8 +53,8 @@ public class EnrollStudentCommandHandler {
             throw new DomainException("Student is already enrolled in this course");
         }
 
-        if (course.getPrice().getAmount().compareTo(java.math.BigDecimal.ZERO) > 0) {
-            pl.dominik.elearningcenter.domain.user.User student = userRepository.findByIdOrThrow(command.studentId());
+        if (course.getPrice().getAmount().compareTo(BigDecimal.ZERO) > 0) {
+            User student = userRepository.findByIdOrThrow(command.studentId());
 
             if (!student.hasEnoughBalance(course.getPrice())) {
                 throw new DomainException("Insufficient balance. Course price: " + course.getPrice().getAmount() + " PLN");
@@ -53,6 +62,32 @@ public class EnrollStudentCommandHandler {
 
             student.deductBalance(course.getPrice());
             userRepository.save(student);
+            walletTransactionRepository.save(
+                    WalletTransaction.debit(
+                            student.getId(),
+                            course.getPrice().getAmount(),
+                            course.getPrice().getCurrencyCode(),
+                            "Course purchase: " + course.getTitle().getValue(),
+                            course.getId()
+                    )
+            );
+
+            Long instructorId = course.getInstructorId();
+            if (instructorId != null && !instructorId.equals(student.getId())) {
+                User instructor = userRepository.findByIdOrThrow(instructorId);
+                Money instructorShare = course.getPrice().multiply(BigDecimal.valueOf(0.9));
+                instructor.addBalance(instructorShare);
+                userRepository.save(instructor);
+                walletTransactionRepository.save(
+                        WalletTransaction.credit(
+                                instructor.getId(),
+                                instructorShare.getAmount(),
+                                instructorShare.getCurrencyCode(),
+                                "Course sale: " + course.getTitle().getValue(),
+                                course.getId()
+                        )
+                );
+            }
         }
 
         Enrollment enrollment = Enrollment.enroll(command.studentId(), command.courseId());

@@ -65,6 +65,16 @@ public class CourseRepositoryAdapter implements CourseRepository {
     }
 
     @Override
+    public long count() {
+        return jpaRepository.count();
+    }
+
+    @Override
+    public long countByPublished(boolean published) {
+        return jpaRepository.countByPublished(published);
+    }
+
+    @Override
     public void delete(Course course) {
         jpaRepository.delete(course);
     }

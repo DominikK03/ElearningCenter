@@ -81,13 +81,17 @@ export const publishCourse = async (courseId: number): Promise<PublishCourseResp
   return response.data;
 };
 
-export const unpublishCourse = async (courseId: number): Promise<AckResponse> => {
-  const response = await apiClient.post<AckResponse>(`/courses/${courseId}/unpublish`);
+export const unpublishCourse = async (courseId: number, reason?: string): Promise<AckResponse> => {
+  const response = await apiClient.post<AckResponse>(
+    `/courses/${courseId}/unpublish`,
+    reason ? { reason } : undefined
+  );
   return response.data;
 };
 
-export const deleteCourse = async (courseId: number): Promise<AckResponse> => {
-  const response = await apiClient.delete<AckResponse>(`/courses/${courseId}`);
+export const deleteCourse = async (courseId: number, reason?: string): Promise<AckResponse> => {
+  const config = reason ? { data: { reason } } : undefined;
+  const response = await apiClient.delete<AckResponse>(`/courses/${courseId}`, config);
   return response.data;
 };
 
