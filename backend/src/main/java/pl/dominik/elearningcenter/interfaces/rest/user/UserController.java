@@ -17,12 +17,17 @@ import pl.dominik.elearningcenter.application.user.query.*;
 import pl.dominik.elearningcenter.application.user.dto.PagedUsersDTO;
 import pl.dominik.elearningcenter.application.user.dto.UserDTO;
 import pl.dominik.elearningcenter.application.user.mapper.UserMapper;
+import pl.dominik.elearningcenter.application.wallet.query.GetUserTransactionsQuery;
+import pl.dominik.elearningcenter.application.wallet.query.GetUserTransactionsQueryHandler;
 import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.user.User;
 import pl.dominik.elearningcenter.infrastructure.security.CustomUserDetails;
+import pl.dominik.elearningcenter.infrastructure.security.JwtTokenProvider;
+import pl.dominik.elearningcenter.interfaces.rest.auth.AuthenticationResponse;
 import pl.dominik.elearningcenter.interfaces.rest.common.AckResponse;
 import pl.dominik.elearningcenter.interfaces.rest.user.request.*;
 import pl.dominik.elearningcenter.interfaces.rest.user.response.PagedUsersResponse;
+import pl.dominik.elearningcenter.interfaces.rest.user.response.PagedWalletTransactionsResponse;
 import pl.dominik.elearningcenter.interfaces.rest.user.response.UserResponse;
 
 @RestController
@@ -42,7 +47,9 @@ public class UserController {
     private final RequestPasswordResetCommandHandler requestPasswordResetCommandHandler;
     private final ResetPasswordCommandHandler resetPasswordCommandHandler;
     private final AddBalanceCommandHandler addBalanceCommandHandler;
+    private final GetUserTransactionsQueryHandler getUserTransactionsQueryHandler;
     private final UserMapper userMapper;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public UserController(
             RegisterUserCommandHandler registerUserCommandHandler,
@@ -59,7 +66,9 @@ public class UserController {
             RequestPasswordResetCommandHandler requestPasswordResetCommandHandler,
             ResetPasswordCommandHandler resetPasswordCommandHandler,
             AddBalanceCommandHandler addBalanceCommandHandler,
-            UserMapper userMapper
+            GetUserTransactionsQueryHandler getUserTransactionsQueryHandler,
+            UserMapper userMapper,
+            JwtTokenProvider jwtTokenProvider
     ) {
         this.registerUserCommandHandler = registerUserCommandHandler;
         this.authenticateUserQueryHandler = authenticateUserQueryHandler;
@@ -75,7 +84,9 @@ public class UserController {
         this.requestPasswordResetCommandHandler = requestPasswordResetCommandHandler;
         this.resetPasswordCommandHandler = resetPasswordCommandHandler;
         this.addBalanceCommandHandler = addBalanceCommandHandler;
+        this.getUserTransactionsQueryHandler = getUserTransactionsQueryHandler;
         this.userMapper = userMapper;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @PostMapping("/register")
@@ -92,7 +103,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
+    public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthenticateUserQuery query = new AuthenticateUserQuery(
                 request.email(),
                 request.password()
@@ -107,17 +118,21 @@ public class UserController {
                 userDetails.getAuthorities()
         );
 
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        securityContext.setAuthentication(authentication);
-        SecurityContextHolder.setContext(securityContext);
+        // Generate JWT tokens
+        String accessToken = jwtTokenProvider.generateAccessToken(authentication);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(authentication);
 
-        HttpSession session = httpRequest.getSession(true);
-        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
-
-        UserDTO userDTO = userMapper.toDto(user);
-        UserResponse response = UserResponse.from(userDTO);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(AuthenticationResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .tokenType("Bearer")
+                .expiresIn(jwtTokenProvider.getAccessTokenExpiration())
+                .userId(user.getId())
+                .email(user.getEmail().getValue())
+                .firstName(user.getUsername().getValue())
+                .lastName("")
+                .role(user.getRole().name())
+                .build());
     }
 
     @PostMapping("/logout")
@@ -250,5 +265,24 @@ public class UserController {
         AddBalanceCommand command = new AddBalanceCommand(id, request.amount());
         addBalanceCommandHandler.handle(command);
         return ResponseEntity.ok(AckResponse.success("Balance added successfully"));
+    }
+
+    @GetMapping("/{id}/transactions")
+    public ResponseEntity<PagedWalletTransactionsResponse> getTransactions(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+        boolean isAdmin = currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        if (!currentUser.getUserId().equals(id) && !isAdmin) {
+            throw new DomainException("Permission denied. You can only view your own transactions");
+        }
+
+        GetUserTransactionsQuery query = new GetUserTransactionsQuery(id, page, size);
+        return ResponseEntity.ok(
+                PagedWalletTransactionsResponse.from(getUserTransactionsQueryHandler.handle(query))
+        );
     }
 }

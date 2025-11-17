@@ -13,7 +13,9 @@ import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import BalancePage from './pages/dashboard/BalancePage';
 import ProfilePage from './pages/profile/ProfilePage';
-import AdminPanelPage from './pages/admin/AdminPanelPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminCoursesPage from './pages/admin/AdminCoursesPage';
 import CreateCoursePage from './pages/instructor/CreateCoursePage';
 import EditCoursePage from './pages/instructor/EditCoursePage';
 import ManageCoursePage from './pages/instructor/ManageCoursePage';
@@ -122,17 +124,17 @@ function App() {
 
             <Route path="/admin" element={
               <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminPanelPage />
+                <AdminDashboardPage />
               </ProtectedRoute>
             } />
             <Route path="/admin/users" element={
               <ProtectedRoute allowedRoles={['ADMIN']}>
-                <div>User Management - Coming Soon</div>
+                <AdminUsersPage />
               </ProtectedRoute>
             } />
             <Route path="/admin/courses" element={
               <ProtectedRoute allowedRoles={['ADMIN']}>
-                <div>Courses Management - Coming Soon</div>
+                <AdminCoursesPage />
               </ProtectedRoute>
             } />
             <Route path="/admin/reports" element={

@@ -38,6 +38,32 @@ export interface User {
   createdAt: string;
 }
 
+export type TransactionType = 'CREDIT' | 'DEBIT';
+
+export interface WalletTransaction {
+  id: number;
+  amount: number;
+  currency: string;
+  type: TransactionType;
+  description: string;
+  referenceId?: number | null;
+  createdAt: string;
+}
+
+export interface PagedWalletTransactionsResponse {
+  transactions: WalletTransaction[];
+  currentPage: number;
+  totalPages: number;
+  totalElements: number;
+}
+
+export interface AdminStats {
+  totalCourses: number;
+  activeCourses: number;
+  inactiveCourses: number;
+  totalUsers: number;
+}
+
 export interface RegisterRequest {
   username: string;
   email: string;
@@ -48,6 +74,22 @@ export interface RegisterRequest {
 export interface LoginRequest {
   email: string;
   password: string;
+}
+
+export interface AuthenticationResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
+  userId: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
 }
 
 export interface UpdateProfileRequest {
@@ -393,6 +435,13 @@ export interface PagedCoursesResponse {
 
 export interface PagedPublicCoursesResponse {
   courses: PublicCourse[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+}
+
+export interface PagedUsersResponse {
+  users: User[];
   totalElements: number;
   totalPages: number;
   currentPage: number;

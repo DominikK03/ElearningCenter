@@ -15,23 +15,28 @@ import pl.dominik.elearningcenter.domain.shared.exception.DomainException;
 import pl.dominik.elearningcenter.domain.shared.valueobject.Money;
 import pl.dominik.elearningcenter.domain.user.User;
 import pl.dominik.elearningcenter.domain.user.UserRepository;
+import pl.dominik.elearningcenter.domain.wallet.WalletTransaction;
+import pl.dominik.elearningcenter.domain.wallet.WalletTransactionRepository;
 
 @Service
 public class EnrollStudentCommandHandler {
     private final EnrollmentRepository enrollmentRepository;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final WalletTransactionRepository walletTransactionRepository;
     private final EnrollmentMapper enrollmentMapper;
 
     public EnrollStudentCommandHandler(
             EnrollmentRepository enrollmentRepository,
             CourseRepository courseRepository,
             UserRepository userRepository,
+            WalletTransactionRepository walletTransactionRepository,
             EnrollmentMapper enrollmentMapper
     ) {
         this.enrollmentRepository = enrollmentRepository;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
+        this.walletTransactionRepository = walletTransactionRepository;
         this.enrollmentMapper = enrollmentMapper;
     }
 
@@ -57,6 +62,15 @@ public class EnrollStudentCommandHandler {
 
             student.deductBalance(course.getPrice());
             userRepository.save(student);
+            walletTransactionRepository.save(
+                    WalletTransaction.debit(
+                            student.getId(),
+                            course.getPrice().getAmount(),
+                            course.getPrice().getCurrencyCode(),
+                            "Course purchase: " + course.getTitle().getValue(),
+                            course.getId()
+                    )
+            );
 
             Long instructorId = course.getInstructorId();
             if (instructorId != null && !instructorId.equals(student.getId())) {
@@ -64,6 +78,15 @@ public class EnrollStudentCommandHandler {
                 Money instructorShare = course.getPrice().multiply(BigDecimal.valueOf(0.9));
                 instructor.addBalance(instructorShare);
                 userRepository.save(instructor);
+                walletTransactionRepository.save(
+                        WalletTransaction.credit(
+                                instructor.getId(),
+                                instructorShare.getAmount(),
+                                instructorShare.getCurrencyCode(),
+                                "Course sale: " + course.getTitle().getValue(),
+                                course.getId()
+                        )
+                );
             }
         }
 

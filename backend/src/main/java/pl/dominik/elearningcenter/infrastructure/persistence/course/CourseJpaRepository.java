@@ -16,6 +16,7 @@ interface CourseJpaRepository extends JpaRepository<Course, Long>, JpaSpecificat
     Page<Course> findByInstructorId(Long instructorId, Pageable pageable);
     List<Course> findByCategory(String category);
     Page<Course> findByPublished(boolean published, Pageable pageable);
+    long countByPublished(boolean published);
     Optional<Course> findByIdAndInstructorId(Long id, Long instructorId);
 
     @Query("SELECT DISTINCT c.category FROM Course c WHERE c.category IS NOT NULL ORDER BY c.category")

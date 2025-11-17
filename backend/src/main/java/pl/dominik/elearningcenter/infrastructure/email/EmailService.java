@@ -82,4 +82,31 @@ public class EmailService {
 
         mailSender.send(message);
     }
+
+    public void sendCourseModerationEmail(
+            String toEmail,
+            String username,
+            String courseTitle,
+            String reason,
+            String action
+    ) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject("Course " + action + " by administrator");
+        message.setText(String.format(
+                "Hello %s,\n\n" +
+                        "Your course \"%s\" was %s by an administrator.\n\n" +
+                        "Reason provided:\n%s\n\n" +
+                        "If you believe this is a mistake, please contact support.\n\n" +
+                        "Best regards,\n" +
+                        "E-Learning Center Team",
+                username,
+                courseTitle,
+                action,
+                reason != null ? reason : "No reason provided"
+        ));
+
+        mailSender.send(message);
+    }
 }

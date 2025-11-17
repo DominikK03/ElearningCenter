@@ -73,4 +73,9 @@ public class UserRepositoryAdapter implements UserRepository {
     public void delete(User user) {
         jpaRepository.delete(user);
     }
+
+    @Override
+    public long count() {
+        return jpaRepository.count();
+    }
 }

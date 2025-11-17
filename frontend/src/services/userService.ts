@@ -11,9 +11,12 @@ import type {
   RequestPasswordResetRequest,
   ResetPasswordRequest,
   AddBalanceRequest,
-  PageResponse,
   PageRequest,
+  PagedUsersResponse,
+  PagedWalletTransactionsResponse,
+  AuthenticationResponse,
 } from '../types/api';
+import { tokenStorage } from '../utils/tokenStorage';
 
 // ============================================
 // Authentication
@@ -24,14 +27,24 @@ export const register = async (data: RegisterRequest): Promise<ApiResponse<User>
   return response.data;
 };
 
-export const login = async (data: LoginRequest): Promise<ApiResponse<User>> => {
-  const response = await apiClient.post<ApiResponse<User>>('/users/login', data);
-  return response.data;
+export const login = async (data: LoginRequest): Promise<AuthenticationResponse> => {
+  const response = await apiClient.post<AuthenticationResponse>('/users/login', data);
+  const authData = response.data;
+
+  // Store tokens
+  tokenStorage.setAccessToken(authData.accessToken);
+  tokenStorage.setRefreshToken(authData.refreshToken);
+
+  return authData;
 };
 
-export const logout = async (): Promise<ApiResponse> => {
-  const response = await apiClient.post<ApiResponse>('/users/logout');
-  return response.data;
+export const logout = async (): Promise<void> => {
+  try {
+    await apiClient.post('/users/logout');
+  } finally {
+    // Always clear tokens, even if the request fails
+    tokenStorage.clearTokens();
+  }
 };
 
 // ============================================
@@ -100,8 +113,8 @@ export const changePassword = async (
 
 export const getAllUsers = async (
   params?: PageRequest & { role?: string }
-): Promise<ApiResponse<PageResponse<User>>> => {
-  const response = await apiClient.get<ApiResponse<PageResponse<User>>>('/users', { params });
+): Promise<PagedUsersResponse> => {
+  const response = await apiClient.get<PagedUsersResponse>('/users', { params });
   return response.data;
 };
 
@@ -117,5 +130,16 @@ export const disableUser = async (userId: number): Promise<ApiResponse> => {
 
 export const addBalance = async (userId: number, data: AddBalanceRequest): Promise<ApiResponse> => {
   const response = await apiClient.post<ApiResponse>(`/users/${userId}/balance/add`, data);
+  return response.data;
+};
+
+export const getUserTransactions = async (
+  userId: number,
+  params?: { page?: number; size?: number }
+): Promise<PagedWalletTransactionsResponse> => {
+  const response = await apiClient.get<PagedWalletTransactionsResponse>(
+    `/users/${userId}/transactions`,
+    { params }
+  );
   return response.data;
 };

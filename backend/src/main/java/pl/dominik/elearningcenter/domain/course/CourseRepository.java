@@ -28,6 +28,8 @@ public interface CourseRepository {
     List<String> findAllDistinctCategories();
 
     Page<Course> findByPublished(boolean published, Pageable pageable);
+    long count();
+    long countByPublished(boolean published);
 
     void delete(Course course);
 
